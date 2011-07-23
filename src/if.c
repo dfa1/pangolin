@@ -70,9 +70,6 @@ if_list(void)
         fprintf(stderr, "error: cannot create an helper socket: %s\n",
                 strerror(errno));
         return -1;
-        if (ifc.ifc_buf)
-            free(ifc.ifc_buf);
-
     }
 
     /* Richiedo al kernel di prendere tutte le interfacce. */
