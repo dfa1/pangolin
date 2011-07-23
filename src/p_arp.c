@@ -95,8 +95,10 @@ arp_hrd2str(U16 hrd)
                 return "ROSE";
             case ARPHRD_X25:
                 return "X25";
+#ifdef ARPHDR_HWX25
             case ARPHDR_HWX25:
                 return "HWX25";
+#endif
             case ARPHRD_PPP:
                 return "PPP";
             case ARPHRD_CISCO:
