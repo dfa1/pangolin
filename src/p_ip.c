@@ -88,6 +88,7 @@ resolve(U8 *buf, U32 *raw)
     }
 
     memcpy(buf, addr, n);
+    buf[n] = 0;
 }
 
 
