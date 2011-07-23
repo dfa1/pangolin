@@ -69,12 +69,8 @@ resolve(U8 *buf, U32 *raw)
     char *addr;
     size_t n;
 
-    /* Disabilito la risoluzione degli indirizzi poiche' e' molto lenta. */
-#ifdef RESOLV_IP
     hp = gethostbyaddr(raw, 4, PF_INET);
-#else
-    hp = NULL;
-#endif
+
     if (hp != NULL) {
         n = strlen(hp->h_name);
 
@@ -82,8 +78,7 @@ resolve(U8 *buf, U32 *raw)
             goto dotted;
 
         addr = hp->h_name;
-    }
-    else {
+    } else {
         struct in_addr in;
 
       dotted:
@@ -107,7 +102,7 @@ ip_dump(struct packet *packet)
     memcpy(&vhl, packet->data, 1);
     memcpy(&hdr, packet->data, (vhl & 0xF) * 4);
     packet->data += (vhl & 0xF) * 4;
-    resolve(src, &hdr.ip_src);
+    resolve(src, &hdr.ip_src); // TODO: this should be user-configurable
     resolve(dst, &hdr.ip_dst);
 
     switch (hdr.ip_pro) {
