@@ -1,0 +1,10 @@
+syntax: glob
+
+*.o
+*.Po
+*.in
+autom4te.cache
+configure
+Makefile
+missing
+depcomp
