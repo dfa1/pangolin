@@ -65,9 +65,9 @@ EXTERN void udp_dump(struct packet *, U8 *, U8 *);
 PRIVATE void
 resolve(U8 *buf, U32 *raw)
 {
-    register struct hostent *hp;
-    register char *addr;
-    register size_t n;
+    struct hostent *hp;
+    char *addr;
+    size_t n;
 
     /* Disabilito la risoluzione degli indirizzi poiche' e' molto lenta. */
 #ifdef RESOLV_IP
