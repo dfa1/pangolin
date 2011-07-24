@@ -252,7 +252,7 @@ eth_dump(struct packet *packet, struct context *ctx)
     }
     
     s = packet->time.tv_sec % 60;
-    fprintf(stdout, "%s:%c%2.6f ", timestamp(&packet->time),
+    ctx->out("%s:%c%2.6f ", timestamp(&packet->time),
             s < 10 ? '0' : '\0', s + (float) packet->time.tv_usec / 1000000);
 
     if (ctx->print_mac_addr) {
@@ -260,11 +260,11 @@ eth_dump(struct packet *packet, struct context *ctx)
 	char dst[20];
 	eth_mac_addr(hdr.eth_shost, src, sizeof src);
 	eth_mac_addr(hdr.eth_dhost, dst, sizeof dst);
-        fprintf(stdout, "%s > %s: ", src, dst);
+        ctx->out("%s > %s: ", src, dst);
     }
 
     if (type <= 0x05DC) {
-        fprintf(stdout, "IEEE 802.3 Length len=%d", type & 0xFFFF);
+        ctx->out("IEEE 802.3 Length len=%d", type & 0xFFFF);
     } else {
         packet->data += ETH_HDR_LEN;
 
@@ -281,12 +281,12 @@ eth_dump(struct packet *packet, struct context *ctx)
                     break;
 
                 default:
-                    fprintf(stdout, "%s (skip)", eth_type2str(type));
+                    ctx->out("%s (skip)", eth_type2str(type));
                     break;
         }
     }
 
-    fprintf(stdout, "\n");
+    ctx->out("\n");
     fflush(stdout);
     return sts;
 }

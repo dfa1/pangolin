@@ -79,25 +79,25 @@ tcp_dump(struct packet *packet, U8 *src, U8 *dst, struct context *ctx)
 
     memset(&hdr, 0, TCP_HDR_LEN);
     memcpy(&hdr, packet->data, TCP_HDR_LEN);
-    fprintf(stdout, "tcp %s:", src);
+    ctx->out("tcp %s:", src);
 
     pent = getprotobynumber(TOHOST16(hdr.tcp_sport));
 
     if (pent == NULL) {
-        fprintf(stdout, "%d", TOHOST16(hdr.tcp_sport) & 0xFFFF);
+        ctx->out("%d", TOHOST16(hdr.tcp_sport) & 0xFFFF);
     }
     else {
-        fprintf(stdout, "%s", pent->p_name);
+        ctx->out("%s", pent->p_name);
     }
 
-    fprintf(stdout, " > %s:", dst);
+    ctx->out(" > %s:", dst);
     pent = getprotobynumber(TOHOST16(hdr.tcp_dport));
 
     if (pent == NULL) {
-        fprintf(stdout, "%d", TOHOST16(hdr.tcp_dport) & 0xFFFF);
+        ctx->out("%d", TOHOST16(hdr.tcp_dport) & 0xFFFF);
     }
     else {
-        fprintf(stdout, "%s", pent->p_name);
+        ctx->out("%s", pent->p_name);
     }
 
     if (hdr.tcp_flags & TCP_FLAG_PUSH)
@@ -106,7 +106,7 @@ tcp_dump(struct packet *packet, U8 *src, U8 *dst, struct context *ctx)
     if (hdr.tcp_flags & TCP_FLAG_FIN)
         hdr.tcp_flags &= ~TCP_FLAG_ACK;
 
-    fprintf(stdout, " %c%c%c%c%c%c ",
+    ctx->out(" %c%c%c%c%c%c ",
             hdr.tcp_flags & TCP_FLAG_FIN ? 'F' : '\0',
             hdr.tcp_flags & TCP_FLAG_SYN ? 'S' : '\0',
             hdr.tcp_flags & TCP_FLAG_RST ? 'R' : '\0',
@@ -118,11 +118,11 @@ tcp_dump(struct packet *packet, U8 *src, U8 *dst, struct context *ctx)
 
 
     if (hdr.tcp_flags & TCP_FLAG_SYN || hdr.tcp_flags & TCP_FLAG_FIN)
-        fprintf(stdout, "seq %u ", TOHOST32(hdr.tcp_seq));
+        ctx->out("seq %u ", TOHOST32(hdr.tcp_seq));
 
     if (hdr.tcp_flags & TCP_FLAG_ACK || hdr.tcp_flags & TCP_FLAG_PUSH
         || hdr.tcp_flags & TCP_FLAG_FIN)
-        fprintf(stdout, "ack %u ", TOHOST32(hdr.tcp_ack));
+        ctx->out("ack %u ", TOHOST32(hdr.tcp_ack));
 
-    fprintf(stdout, "win %u", TOHOST16(hdr.tcp_win) & 0xFFFF);
+    ctx->out("win %u", TOHOST16(hdr.tcp_win) & 0xFFFF);
 }

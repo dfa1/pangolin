@@ -89,12 +89,12 @@ icmp_dump(struct packet *packet, U8 *src, U8 *dst, struct context *ctx)
     memset(&hdr, 0, sizeof(struct icmp_hdr));
     memcpy(&hdr, packet->data, sizeof(struct icmp_hdr));
     
-    fprintf(stdout, "icmp %s > %s ", src, dst);
+    ctx->out("icmp %s > %s ", src, dst);
 
     switch (hdr.icmp_type) {
             case ICMP_ECHO_REQUEST:
             case ICMP_ECHO_REPLY:
-                fprintf(stdout, "echo-%s id=%d seq=%d ",
+                ctx->out("echo-%s id=%d seq=%d ",
                         hdr.icmp_type ==
                         ICMP_ECHO_REQUEST ? "request" : "reply",
                         TOHOST16(hdr.icmp_echo_id) & 0xFFFF,
@@ -102,50 +102,50 @@ icmp_dump(struct packet *packet, U8 *src, U8 *dst, struct context *ctx)
                 break;
 
             case ICMP_UNREACH:
-                fprintf(stdout, "destination unreachable");
+                ctx->out("destination unreachable");
                 break;
 
             case ICMP_SOURCE_QUENCH:
-                fprintf(stdout, "source quench");
+                ctx->out("source quench");
                 break;
 
             case ICMP_REDIRECT:
-                fprintf(stdout, "redirect (change route)");
+                ctx->out("redirect (change route)");
                 break;
 
             case ICMP_TIME_EXCEEDED:
-                fprintf(stdout, "time exceeded");
+                ctx->out("time exceeded");
                 break;
 
             case ICMP_PARAMETER_PROB:
-                fprintf(stdout, "parameter problem");
+                ctx->out("parameter problem");
                 break;
 
             case ICMP_TIMESTAMP:
-                fprintf(stdout, "timestamp request");
+                ctx->out("timestamp request");
                 break;
 
             case ICMP_TIMESTAMP_REPLY:
-                fprintf(stdout, "timestamp reply");
+                ctx->out("timestamp reply");
                 break;
 
             case ICMP_INFO_REQUEST:
-                fprintf(stdout, "information request");
+                ctx->out("information request");
                 break;
 
             case ICMP_INFO_REPLY:
-                fprintf(stdout, "information reply");
+                ctx->out("information reply");
                 break;
 
             case ICMP_ADDRESS:
-                fprintf(stdout, "address mask request");
+                ctx->out("address mask request");
                 break;
 
             case ICMP_ADDRESS_REPLY:
-                fprintf(stdout, "address mask reply");
+                ctx->out("address mask reply");
                 break;
 
             default:
-                fprintf(stdout, "unknown");
+                ctx->out("unknown");
     }
 }

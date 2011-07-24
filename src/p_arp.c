@@ -201,7 +201,7 @@ arp_dump(struct packet *packet, struct context *ctx)
                            sizeof(struct in_addr));
                     memcpy(dst, inet_ntoa(tpa), 16);
                     memcpy(src, inet_ntoa(spa), 16);
-                    fprintf(stdout, "arp request %s tell %s ", dst, src);
+                    ctx->out("arp request %s tell %s ", dst, src);
                     break;
                 }
 
@@ -214,7 +214,7 @@ arp_dump(struct packet *packet, struct context *ctx)
                     memcpy(sha, packet->data, 6);
                     memcpy(&spa, packet->data + hdr.arp_hln,
                            sizeof(struct in_addr));
-                    fprintf(stdout, "arp reply %s is %s", inet_ntoa(spa), src);
+                    ctx->out("arp reply %s is %s", inet_ntoa(spa), src);
                     break;
                 }
 
@@ -228,7 +228,7 @@ arp_dump(struct packet *packet, struct context *ctx)
                     memcpy(tha, packet->data + hdr.arp_hln + hdr.arp_pln, 6);
 		    eth_mac_addr(sha, src, sizeof src);
 		    eth_mac_addr(tha, dst, sizeof dst);
-                    fprintf(stdout, "rarp request %s tell %s", src, dst);
+                    ctx->out("rarp request %s tell %s", src, dst);
                     break;
                 }
 
@@ -242,17 +242,15 @@ arp_dump(struct packet *packet, struct context *ctx)
                            packet->data + (2 * hdr.arp_hln) +
                            hdr.arp_pln, sizeof(struct in_addr));
                     eth_mac_addr(tha, src, sizeof src);
-		    fprintf(stdout, "rarp reply %s is %s", src, inet_ntoa(tpa));
+		    ctx->out("rarp reply %s is %s", src, inet_ntoa(tpa));
                     break;
-
                 }
 
                 default:
-                    fprintf(stdout, "op=%d", TOHOST16(hdr.arp_pro) & 0xFFFF);
+                    ctx->out("op=%d", TOHOST16(hdr.arp_pro) & 0xFFFF);
         }
-    }
-    else {
-        fprintf(stdout, "%s hardware: %s (#%d) (skip)",
+    } else {
+        ctx->out("%s hardware: %s (#%d) (skip)",
                 arp_op2str(TOHOST16(hdr.arp_op)),
                 arp_hrd2str(TOHOST16(hdr.arp_hrd)),
                 TOHOST16(hdr.arp_hrd) & 0xFFFF);

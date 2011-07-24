@@ -64,20 +64,20 @@ udp_dump(struct packet *packet, U8 *src, U8 *dst, struct context *ctx)
     if (s == 68 || d == 68 || s == 67 || d == 67) {
         bootp_dump(packet, ctx);
     } else {
-        fprintf(stdout, "udp %s:", src);
+        ctx->out("udp %s:", src);
         pent = getprotobynumber(s);
 
         if (pent == NULL) // TODO: refactor with p_tcp.c
-            fprintf(stdout, "%d", s & 0xFFFF);
+            ctx->out("%d", s & 0xFFFF);
         else
-            fprintf(stdout, "%s", pent->p_name);
+            ctx->out("%s", pent->p_name);
 
-        fprintf(stdout, " %s:", dst);
+        ctx->out(" %s:", dst);
         pent = getprotobynumber(d);
 
         if (pent == NULL)
-            fprintf(stdout, "%d", d & 0xFFFF);
+            ctx->out("%d", d & 0xFFFF);
         else
-            fprintf(stdout, "%s", pent->p_name);
+            ctx->out("%s", pent->p_name);
     }
 }

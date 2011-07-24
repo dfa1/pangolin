@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <errno.h>
 #include <signal.h>
@@ -238,6 +239,15 @@ parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
+
+void out_to_stdout(const char *fmt, ...) 
+{
+    va_list ap;
+    va_start(ap, fmt);
+    vprintf(fmt, ap);
+    va_end(ap);
+}
+
 PRIVATE struct argp argp = { options, parse_opt, NULL, program_doc };
 
 PUBLIC int
@@ -326,6 +336,7 @@ main(int argc, char **argv)
     struct context context;
     context.print_mac_addr = args.mac;
     context.resolve_dns = 1; /* TODO: dummy */
+    context.out = out_to_stdout;
 
     for (;;) {
         struct packet packet, *ppacket = &packet; // TODO: this
@@ -370,5 +381,7 @@ dump_raw(struct packet *ppacket)
     for (i = 0; i < 200; i++) {
 	fprintf(stdout, "%02x ", ppacket->data[i]);
     }
+
     fprintf(stdout, "\n");
 }
+

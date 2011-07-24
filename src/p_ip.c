@@ -116,7 +116,7 @@ ip_dump(struct packet *packet, struct context *ctx)
 	break;
 	
     default:
-	fprintf(stdout, "unknown %s > %s ", src, dst);
+	ctx->out("unknown %s > %s ", src, dst);
 	break;
     }
 }

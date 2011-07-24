@@ -107,6 +107,6 @@ bootp_dump(struct packet *packet, struct context *ctx)
     bootp_ip(ca, &hdr.bootp_ca);
     bootp_ip(ya, &hdr.bootp_ya);
     bootp_ip(ga, &hdr.bootp_ga);
-    fprintf(stdout, "BOOTP/DHCP %s: %s > %s ip %s gw %s",
+    ctx->out("BOOTP/DHCP %s: %s > %s ip %s gw %s",
             bootp_op2str(hdr.bootp_op), sa, ca, ya, ga);
 }

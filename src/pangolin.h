@@ -56,6 +56,9 @@ struct context
 {
     int print_mac_addr;
     int resolve_dns; 
+
+    void (*out) (const char *fmt, ...);
+    void (*err) (const char *fmt, ...);
 };
 
 EXTERN int eth_dump(struct packet *, struct context *);
