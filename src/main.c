@@ -1,6 +1,6 @@
 /*
  * main.c -- the main()
- * Copyright (C) 2006  Davide Angelocola <davide.angelocola@gmail.com>
+ * Copyright (C) 2004-2011  Davide Angelocola <davide.angelocola@gmail.com>
  *
  * Pangolin is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,23 +27,6 @@
 
 #include "pangolin.h"
 
-/*
- * EXIT_SUCCESS (definito come 0) e EXIT_FAILURE (definito come 1)
- * sono gli unici due valori portabili che possono essere restituite
- * al processo chiamante (usualmente e' la shell).
- */
-#undef EXIT_SUCCESS
-#undef EXIT_FAILURE
-
-#ifndef EXIT_SUCCESS
-# define EXIT_SUCCESS 0
-#endif
-
-#ifndef EXIT_FAILURE
-# define EXIT_FAILURE 1
-#endif
-
-
 /* if.c */
 EXTERN int if_open(const char *);
 EXTERN void if_close(int);
@@ -63,7 +46,6 @@ EXTERN int eth_dump(struct packet *, int);
 EXTERN void filter_host(struct sock_filter *, U32);
 EXTERN void filter_port(struct sock_filter *, U16);
 
-/* filtri per protocolli (fissi) */
 EXTERN struct sock_filter ARP_code[];
 EXTERN struct sock_filter RARP_code[];
 EXTERN struct sock_filter IP_code[];
@@ -71,28 +53,18 @@ EXTERN struct sock_filter ICMP_code[];
 EXTERN struct sock_filter TCP_code[];
 EXTERN struct sock_filter UDP_code[];
 
-/* altri filtri (paremetrici) */
-EXTERN struct sock_filter PORT_code[];
-EXTERN struct sock_filter HOST_code[];
+EXTERN struct sock_filter PORT_code[]; // customizable
+EXTERN struct sock_filter HOST_code[]; // customizable
 
-/*
- * L'indice dell'interfaccia di loopback. Questa e' esportata in modo
- * da essere usata da capture().
- */
-PUBLIC int loindex;
+PUBLIC int loindex; // TODO: really a global?
 
-/*
- * Il socket descriptor. E' dichiarato fuori dalle funzioni in modo da
- * poter essere chiuso in risposta ad un segnale.
- */
 PRIVATE int fd = -1;
 
-/* Gli argomenti e le opzioni delle linea di comando. */
 struct arguments
 {
     char *iface;
 
-    /* Filtri per protocolli.. */
+    /* by protocol filters */
     int filter;
     int arp;
     int rarp;
@@ -101,7 +73,6 @@ struct arguments
     int tcp;
     int udp;
 
-    /* Altri filtri. */
     long host;
     int port;
 
@@ -133,19 +104,18 @@ cleanup(int sts)
 PRIVATE void
 sigint_handler(int signal)
 {
-    (void) signal;              /* IGNORATO */
+    (void) signal;              
     cleanup(EXIT_SUCCESS);
 }
 
 PRIVATE void
 sigterm_handler(int signal)
 {
-    (void) signal;              /* IGNORATO */
+    (void) signal;              
     cleanup(EXIT_FAILURE);
 }
 
 
-/* Opzioni a linea di comando&co. */
 const char *argp_program_version = "1.0";
 const char *argp_program_bug_address = "davide.angelocola@gmail.com";
 const char program_doc[] = "a simple sniffer for linux";
@@ -164,8 +134,6 @@ PRIVATE const struct argp_option options[] = {
 };
 /* *INDENT-ON* */
 
-/* Fa il parsing di una singola azione e copia l'argomento (se
- * presente) nella struttura arguments. */
 PRIVATE error_t
 parse_opt(int key, char *arg, struct argp_state *state)
 {
@@ -216,7 +184,7 @@ parse_opt(int key, char *arg, struct argp_state *state)
                 args->promisc = 0;
                 break;
 
-#define EQ(p,s) (strcmp((p),(s)) == 0)
+#define EQ(p,s) (strcmp((p),(s)) == 0) // TODO: useless
 
             case 'p':
                 if (args->filter) {
@@ -266,15 +234,14 @@ parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-/* Riempo la struttura argp. */
 PRIVATE struct argp argp = { options, parse_opt, NULL, program_doc };
 
 PUBLIC int
 main(int argc, char **argv)
 {
-    register int c = 0;
+    int c = 0;
 
-    /* Valori di default. */
+    /* defaults */
     args.iface = NULL;
     args.filter = 0;
     args.arp = 0;
@@ -288,39 +255,28 @@ main(int argc, char **argv)
     args.list = 0;
     args.mac = 0;
     args.port = 0;
-    args.host = 0;
 
-    /*
-     * Faccio il parsing degli argomenti. Ogni volta che incontro
-     * un'opzione argp chiama la funzione parse_opt e riempe (se
-     * necessario) la struttura args.
-     */
     if (argp_parse
         (&argp, argc, argv, ARGP_PARSE_ARGV0 | ARGP_NO_EXIT, 0, &args) != 0)
         cleanup(EXIT_FAILURE);
 
-    /* E' stato richiesto di listare le interfacce. Lo faccio ed esco. */
     if (args.list)
         return if_list();
 
-    /* Se non e' stata settata nessuna interfaccia esco. */
     if (!args.iface) {
         argp_help(&argp, stderr, ARGP_HELP_USAGE, argv[0]);
         cleanup(EXIT_FAILURE);
     }
 
-    /* Apro l'interfaccia */
     fd = if_open(args.iface);
 
     if (fd < 0)
         cleanup(EXIT_FAILURE);
 
-    /* Entro in modo promiscuo se l'utente non ha specificato altrimenti. */
     if (args.promisc)
         if (if_promisc(fd, args.iface, 1))
             cleanup(EXIT_FAILURE);
 
-    /* Aggancio eventuali filtri. */
     if (args.arp)
         if_filter(fd, ARP_code, 4);
 
@@ -357,17 +313,13 @@ main(int argc, char **argv)
     }
 
 
-    /* Inizializzo l'indice dell'interfaccia di loopback. */
     loindex = if_index(fd, "lo");
 
-    /*
-     * Installo delle callback in risposta ai segnali di
-     * SIGINT (C-c), SIGPIPE e SIGTERM.
-     */
-    (void) signal(SIGINT, sigint_handler);
-    (void) signal(SIGTERM, sigterm_handler);
 
-    /* Loop. */
+    // TODO: this should be done asap
+    signal(SIGINT, sigint_handler);
+    signal(SIGTERM, sigterm_handler);
+
     for (;;) {
         struct packet packet, *ppacket = &packet;
 
@@ -375,7 +327,6 @@ main(int argc, char **argv)
                 case 0:
                     if (!errno)
                         continue;
-
 
                 case -1:
                     fprintf(stderr,
@@ -391,9 +342,8 @@ main(int argc, char **argv)
 
         eth_dump(ppacket, args.mac);
     }
-    /* !Loop. */
 
   out:
     cleanup(EXIT_SUCCESS);
-    return 0;			/* shut up compiler */
+    return 0;			/* XXX: shut up compiler */
 }
