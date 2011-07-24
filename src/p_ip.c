@@ -101,7 +101,14 @@ ip_dump(struct packet *packet, struct context *ctx)
     if (ctx->resolve_dns) {
 	resolve(src, &hdr.ip_src); 
 	resolve(dst, &hdr.ip_dst);
+    } else {
+	struct in_addr in;
+        memcpy(&in, &hdr.ip_src, 4);
+	memcpy(src, inet_ntoa(in), 16);
+        memcpy(&in, &hdr.ip_dst, 4);
+	memcpy(dst, inet_ntoa(in), 16);
     }
+    
 
     switch (hdr.ip_pro) {
     case 0x01:
