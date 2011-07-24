@@ -8,3 +8,7 @@ SUBDIRS = src test
 # is distributed (such as src/os-*).
 dist-hook:
 	find $(distdir) \( -name .svn -type d \) -o -name "*~" -o -name ".#*" -exec rm {} \;
+
+
+valgrind: all
+	sudo valgrind --leak-check=full src/pangolin -i lo -e
