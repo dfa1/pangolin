@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <argp.h>
 
+#include "config.h"
 #include "pangolin.h"
 
 /* if.c */
@@ -81,6 +82,7 @@ struct arguments
     int count;
     int list;
     int mac;
+    int raw;
 };
 
 PRIVATE struct arguments args;
@@ -116,9 +118,9 @@ sigterm_handler(int signal)
 }
 
 
-const char *argp_program_version = "1.0";
-const char *argp_program_bug_address = "davide.angelocola@gmail.com";
-const char program_doc[] = "a simple sniffer for linux";
+const char *argp_program_version = PACKAGE_VERSION;
+const char *argp_program_bug_address = PACKAGE_BUGREPORT;
+const char program_doc[] = "a simple sniffer for GNU/linux";
 
 /* *INDENT-OFF* */
 PRIVATE const struct argp_option options[] = {
@@ -130,6 +132,7 @@ PRIVATE const struct argp_option options[] = {
 	{ 0, 'c', "count", 0, "stop after count packet" },
 	{ 0, 'l', 0, 0, "list interfaces" },
 	{ 0, 'e', 0, 0, "print ethernet mac addresses" },
+	{ 0, 'r', 0, 0, "dump raw packets" },
 	{ 0 }
 };
 /* *INDENT-ON* */
@@ -150,6 +153,10 @@ parse_opt(int key, char *arg, struct argp_state *state)
                 }
 
                 break;
+		
+            case 'r':
+		 args->raw = 1;
+		 break;
 
             case 'e':
                 args->mac = 1;
@@ -255,6 +262,7 @@ main(int argc, char **argv)
     args.list = 0;
     args.mac = 0;
     args.port = 0;
+    args.raw = 1;
 
     if (argp_parse
         (&argp, argc, argv, ARGP_PARSE_ARGV0 | ARGP_NO_EXIT, 0, &args) != 0)
@@ -340,10 +348,27 @@ main(int argc, char **argv)
                             goto out;
         }
 
+	if (args.raw) {
+	    dump_raw(ppacket);
+	}
+	
+	
         eth_dump(ppacket, args.mac);
     }
 
   out:
     cleanup(EXIT_SUCCESS);
     return 0;			/* XXX: shut up compiler */
+}
+
+void 
+dump_raw(struct packet *ppacket) 
+{
+    int i;
+    fprintf(stdout, "type = %d\n", ppacket->type);
+
+    for (i = 0; i < 200; i++) {
+	fprintf(stdout, "%02x ", ppacket->data[i]);
+    }
+    fprintf(stdout, "\n");
 }
