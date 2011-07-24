@@ -246,6 +246,9 @@ PRIVATE struct argp argp = { options, parse_opt, NULL, program_doc };
 PUBLIC int
 main(int argc, char **argv)
 {
+    signal(SIGINT, sigint_handler);
+    signal(SIGTERM, sigterm_handler);
+
     int c = 0;
 
     /* defaults */
@@ -264,13 +267,14 @@ main(int argc, char **argv)
     args.port = 0;
     args.raw = 1;
 
-    if (argp_parse
-        (&argp, argc, argv, ARGP_PARSE_ARGV0 | ARGP_NO_EXIT, 0, &args) != 0)
+    if (argp_parse(&argp, argc, argv, ARGP_PARSE_ARGV0 | ARGP_NO_EXIT, 0, &args) != 0) {
         cleanup(EXIT_FAILURE);
-
-    if (args.list)
+    }
+    
+    if (args.list) {
         return if_list();
-
+    }
+    
     if (!args.iface) {
         argp_help(&argp, stderr, ARGP_HELP_USAGE, argv[0]);
         cleanup(EXIT_FAILURE);
@@ -278,9 +282,10 @@ main(int argc, char **argv)
 
     fd = if_open(args.iface);
 
-    if (fd < 0)
+    if (fd < 0) {
         cleanup(EXIT_FAILURE);
-
+    }
+    
     if (args.promisc)
         if (if_promisc(fd, args.iface, 1))
             cleanup(EXIT_FAILURE);
@@ -320,13 +325,7 @@ main(int argc, char **argv)
         if_filter(fd, HOST_code, 14);
     }
 
-
     loindex = if_index(fd, "lo");
-
-
-    // TODO: this should be done asap
-    signal(SIGINT, sigint_handler);
-    signal(SIGTERM, sigterm_handler);
 
     for (;;) {
         struct packet packet, *ppacket = &packet;
@@ -351,7 +350,6 @@ main(int argc, char **argv)
 	if (args.raw) {
 	    dump_raw(ppacket);
 	}
-	
 	
         eth_dump(ppacket, args.mac);
     }
