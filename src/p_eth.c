@@ -225,23 +225,21 @@ timestamp(struct timeval *tv)
 
 
 
-PUBLIC const char *
-eth_mac_addr(U8 *mac)
+PUBLIC void
+eth_mac_addr(U8 *mac, char *buf, size_t bufsize)
 {
-    static char s[20];
-
     if (!(mac[5] ^ 0xFF) && !(mac[0] ^ 0xFF)) {
-        register int x;
+        int x = mac[1] ^ mac[2] ^ mac[3] ^ mac[4];
 
-        x = mac[1] ^ mac[2] ^ mac[3] ^ mac[4];
-
-        if (!x)
-            return "broadcast";
-    }
-
-    snprintf(s, 20, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
-             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    return s;
+        if (!x) {
+            snprintf(buf, bufsize, "%s", "broadcast");
+	    return;
+	}
+	
+    } 
+    
+    snprintf(buf, bufsize, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
+	     mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
 
@@ -269,12 +267,12 @@ eth_dump(struct packet *packet, int printhdr)
             s < 10 ? '0' : '\0', s + (float) packet->time.tv_usec / 1000000);
 
     if (printhdr) {
-        char copy[20]; // TODO: ugly
-
-        strcpy(copy, eth_mac_addr(hdr.eth_shost));
-        fprintf(stdout, "%s > %s: ", copy, eth_mac_addr(hdr.eth_dhost));
+        char src[20];
+	char dst[20];
+	eth_mac_addr(hdr.eth_shost, src, sizeof src);
+	eth_mac_addr(hdr.eth_dhost, dst, sizeof dst);
+        fprintf(stdout, "%s > %s: ", src, dst);
     }
-
 
     if (type <= 0x05DC) {
         fprintf(stdout, "IEEE 802.3 Length len=%d", type & 0xFFFF);

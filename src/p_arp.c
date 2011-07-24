@@ -150,7 +150,6 @@ arp_hrd2str(U16 hrd)
             default:
                 return "UNKNOWN";
     }
-
 }
 
 PRIVATE const char *
@@ -177,7 +176,7 @@ arp_op2str(U16 op)
 }
 
 
-EXTERN const char *eth_mac_addr(U8 *, char *, size_t); // TODO: declare in pangolin.h 
+EXTERN void eth_mac_addr(U8 *, char *, size_t); // TODO: declare in pangolin.h 
 
 PUBLIC void
 arp_dump(struct packet *packet)
@@ -209,12 +208,13 @@ arp_dump(struct packet *packet)
                 case ARPOP_REPLY:{
                     struct in_addr spa;
                     U8 sha[6];
+		    char src[20];
+		    eth_mac_addr(sha, src, sizeof src);
 
                     memcpy(sha, packet->data, 6);
                     memcpy(&spa, packet->data + hdr.arp_hln,
                            sizeof(struct in_addr));
-                    fprintf(stdout, "arp reply %s is %s",
-                            inet_ntoa(spa), eth_mac_addr(sha));
+                    fprintf(stdout, "arp reply %s is %s", inet_ntoa(spa), src);
                     break;
                 }
 
@@ -228,20 +228,21 @@ arp_dump(struct packet *packet)
                     memcpy(tha, packet->data + hdr.arp_hln + hdr.arp_pln, 6);
 		    eth_mac_addr(sha, src, sizeof src);
 		    eth_mac_addr(tha, dst, sizeof dst);
-                    fprintf(stdout, "rarp request %s tell %s", , eth_mac_addr(sha));
+                    fprintf(stdout, "rarp request %s tell %s", src, dst);
                     break;
                 }
 
                 case ARPOP_RREPLY:{
                     U8 tha[6];
-                    struct in_addr tpa;
+                    char src[20];
+		    struct in_addr tpa;
 
                     memcpy(tha, packet->data + hdr.arp_hln + hdr.arp_pln, 6);
                     memcpy(&tpa,
                            packet->data + (2 * hdr.arp_hln) +
                            hdr.arp_pln, sizeof(struct in_addr));
-                    fprintf(stdout, "rarp reply %s is %s",
-                            eth_mac_addr(tha), inet_ntoa(tpa));
+                    eth_mac_addr(tha, src, sizeof src);
+		    fprintf(stdout, "rarp reply %s is %s", src, inet_ntoa(tpa));
                     break;
 
                 }
