@@ -23,24 +23,21 @@
 
 #include "pangolin.h"
 
-#define ETH_ADDR_LEN 6
-
-
 /* Ethernet header length as defined by 802.3 standard */
+#define ETH_ADDR_LEN 6
 #define ETH_HDR_LEN 14
 
 struct eth_hdr
 {
-    U8 eth_dhost[ETH_ADDR_LEN]; /* MAC destinazione. */
-    U8 eth_shost[ETH_ADDR_LEN]; /* MAC sorgente. */
-    U16 eth_type;               /* Tipo di pacchetto o lunghezza. */
+    U8 eth_dhost[ETH_ADDR_LEN]; 
+    U8 eth_shost[ETH_ADDR_LEN]; 
+    U16 eth_type;               
 };
 
-#define ETH_TYPE_IP 0x0800      /* IPv4. */
-#define ETH_TYPE_IPv4 ETH_TYPE_IP
-#define ETH_TYPE_ARP 0x0806     /* ARP. */
-#define ETH_TYPE_RARP 0x8035    /* RARP. */
-
+/* supported values for eth_type */
+#define ETH_TYPE_IP   0x0800    /* IPv4  */
+#define ETH_TYPE_ARP  0x0806    /* ARP   */
+#define ETH_TYPE_RARP 0x8035    /* RARP  */
 
 PRIVATE struct eth_type
 {
