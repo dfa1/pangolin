@@ -96,7 +96,7 @@ bootp_ip(U8 *addr, U32 *raw)
 }
 
 PUBLIC void
-bootp_dump(struct packet *packet)
+bootp_dump(struct packet *packet, struct context *ctx)
 {
     struct bootp_hdr hdr;
     U8 sa[16], ca[16], ya[16], ga[16];

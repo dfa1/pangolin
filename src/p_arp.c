@@ -179,7 +179,7 @@ arp_op2str(U16 op)
 EXTERN void eth_mac_addr(U8 *, char *, size_t); // TODO: declare in pangolin.h 
 
 PUBLIC void
-arp_dump(struct packet *packet)
+arp_dump(struct packet *packet, struct context *ctx)
 {
     struct arp_hdr hdr;
 

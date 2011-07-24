@@ -5,7 +5,6 @@
   improve this program?
 - fix: if_list shows max 2 interfaces 
 - ref: pass a filter function to if_list
-- ref: remove italian comments
 - ref: use perror
 - ref: use SIOCGIFCOUNT
 - ref: unit tests with automake

@@ -189,8 +189,6 @@ PRIVATE struct eth_type
 	/* *INDENT-ON* */
 };
 
-
-
 PRIVATE const char *
 eth_type2str(short n)
 {
@@ -220,8 +218,6 @@ timestamp(struct timeval *tv)
     return s;
 }
 
-
-
 PUBLIC void
 eth_mac_addr(U8 *mac, char *buf, size_t bufsize)
 {
@@ -239,16 +235,12 @@ eth_mac_addr(U8 *mac, char *buf, size_t bufsize)
 	     mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
-
-EXTERN void arp_dump(struct packet *);
-EXTERN void ip_dump(struct packet *);
-
 PUBLIC int
-eth_dump(struct packet *packet, int printhdr)
+eth_dump(struct packet *packet, struct context *ctx)
 {
     struct eth_hdr hdr;
     U16 type;
-    int sts = 0;
+    int sts = 0; // TODO: really necessary?
     U8 s;
 
     if (!packet->type) {
@@ -263,7 +255,7 @@ eth_dump(struct packet *packet, int printhdr)
     fprintf(stdout, "%s:%c%2.6f ", timestamp(&packet->time),
             s < 10 ? '0' : '\0', s + (float) packet->time.tv_usec / 1000000);
 
-    if (printhdr) {
+    if (ctx->print_mac_addr) {
         char src[20];
 	char dst[20];
 	eth_mac_addr(hdr.eth_shost, src, sizeof src);
@@ -273,19 +265,18 @@ eth_dump(struct packet *packet, int printhdr)
 
     if (type <= 0x05DC) {
         fprintf(stdout, "IEEE 802.3 Length len=%d", type & 0xFFFF);
-    }
-    else {
+    } else {
         packet->data += ETH_HDR_LEN;
 
         switch (type) {
-                case ETH_TYPE_IPv4:
-                    ip_dump(packet);
+                case ETH_TYPE_IP:
+                    ip_dump(packet, ctx);
                     sts = 1;
                     break;
 
                 case ETH_TYPE_ARP:
                 case ETH_TYPE_RARP:
-                    arp_dump(packet);
+                    arp_dump(packet, ctx);
                     sts = 1;
                     break;
 

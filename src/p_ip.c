@@ -57,13 +57,8 @@ struct ip_hdr
     U32 ip_dst;
 };
 
-
-EXTERN void icmp_dump(struct packet *, U8 *, U8 *);
-EXTERN void tcp_dump(struct packet *, U8 *, U8 *);
-EXTERN void udp_dump(struct packet *, U8 *, U8 *);
-
 PRIVATE void
-resolve(U8 *buf, U32 *raw)
+resolve(U8 *buf, U32 *raw) /* TODO: caching */
 {
     struct hostent *hp;
     char *addr;
@@ -91,9 +86,8 @@ resolve(U8 *buf, U32 *raw)
     buf[n] = 0;
 }
 
-
 PUBLIC void
-ip_dump(struct packet *packet)
+ip_dump(struct packet *packet, struct context *ctx)
 {
     struct ip_hdr hdr;
     U8 dst[64];
@@ -103,20 +97,22 @@ ip_dump(struct packet *packet)
     memcpy(&vhl, packet->data, 1);
     memcpy(&hdr, packet->data, (vhl & 0xF) * 4);
     packet->data += (vhl & 0xF) * 4;
-    resolve(src, &hdr.ip_src); // TODO: this should be user-configurable
-    resolve(dst, &hdr.ip_dst);
+    if (ctx->resolve_dns) {
+	resolve(src, &hdr.ip_src); 
+	resolve(dst, &hdr.ip_dst);
+    }
 
     switch (hdr.ip_pro) {
     case 0x01:
-	icmp_dump(packet, src, dst);
+	icmp_dump(packet, src, dst, ctx);
 	break;
 	
     case 0x06:
-	tcp_dump(packet, src, dst);
+	tcp_dump(packet, src, dst, ctx);
 	break;
 	
     case 0x11:
-	udp_dump(packet, src, dst);
+	udp_dump(packet, src, dst, ctx);
 	break;
 	
     default:

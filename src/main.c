@@ -40,9 +40,6 @@ EXTERN int if_filter(int, struct sock_filter *, U16);
 /* capture.c */
 EXTERN int capture(struct packet *, int);
 
-/* p_eth.c */
-EXTERN int eth_dump(struct packet *, int);
-
 /* filters.c */
 EXTERN void filter_host(struct sock_filter *, U32);
 EXTERN void filter_port(struct sock_filter *, U16);
@@ -265,7 +262,7 @@ main(int argc, char **argv)
     args.list = 0;
     args.mac = 0;
     args.port = 0;
-    args.raw = 1;
+    args.raw = 0;
 
     if (argp_parse(&argp, argc, argv, ARGP_PARSE_ARGV0 | ARGP_NO_EXIT, 0, &args) != 0) {
         cleanup(EXIT_FAILURE);
@@ -326,9 +323,14 @@ main(int argc, char **argv)
     }
 
     loindex = if_index(fd, "lo");
+    struct context context;
+    context.print_mac_addr = args.mac;
+    context.resolve_dns = 1; /* TODO: dummy */
 
     for (;;) {
-        struct packet packet, *ppacket = &packet;
+        struct packet packet, *ppacket = &packet; // TODO: this
+						  // definitevely
+						  // needs some love
 
         switch (capture(ppacket, fd)) {
                 case 0:
@@ -351,7 +353,7 @@ main(int argc, char **argv)
 	    dump_raw(ppacket);
 	}
 	
-        eth_dump(ppacket, args.mac);
+        eth_dump(ppacket, &context);
     }
 
   out:

@@ -47,10 +47,9 @@ struct udp_hdr
 };
 
 EXTERN const char *service(U16, U8);
-EXTERN void bootp_dump(struct packet *);
 
 PUBLIC void
-udp_dump(struct packet *packet, U8 *src, U8 *dst)
+udp_dump(struct packet *packet, U8 *src, U8 *dst, struct context *ctx)
 {
     struct udp_hdr hdr;
     U16 s, d;
@@ -63,9 +62,8 @@ udp_dump(struct packet *packet, U8 *src, U8 *dst)
     packet->data += UDP_HDR_LEN;
 
     if (s == 68 || d == 68 || s == 67 || d == 67) {
-        bootp_dump(packet);
-    }
-    else {
+        bootp_dump(packet, ctx);
+    } else {
         fprintf(stdout, "udp %s:", src);
         pent = getprotobynumber(s);
 

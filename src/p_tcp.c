@@ -72,7 +72,7 @@ struct tcp_hdr
 EXTERN const char *service(U16, U8);
 
 PUBLIC void
-tcp_dump(struct packet *packet, U8 *src, U8 *dst)
+tcp_dump(struct packet *packet, U8 *src, U8 *dst, struct context *ctx)
 {
     struct tcp_hdr hdr;
     struct protoent *pent;

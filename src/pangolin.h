@@ -50,3 +50,21 @@ struct sock_fprog               /* Required for SO_ATTACH_FILTER. */
     U16 len;
     struct sock_filter *filter;
 };
+
+/* decoding context */
+struct context 
+{
+    int print_mac_addr;
+    int resolve_dns; 
+};
+
+EXTERN int eth_dump(struct packet *, struct context *);
+EXTERN void arp_dump(struct packet *, struct context *);
+EXTERN void ip_dump(struct packet *, struct context *);
+EXTERN void icmp_dump(struct packet *, U8 *, U8 *, struct context *);
+EXTERN void tcp_dump(struct packet *, U8 *, U8 *, struct context *);
+EXTERN void udp_dump(struct packet *, U8 *, U8 *, struct context *);
+EXTERN void bootp_dump(struct packet *, struct context *);
+
+
+    

@@ -82,7 +82,7 @@ struct icmp_hdr
 
 
 PUBLIC void
-icmp_dump(struct packet *packet, U8 *src, U8 *dst)
+icmp_dump(struct packet *packet, U8 *src, U8 *dst, struct context *ctx)
 {
     struct icmp_hdr hdr;
 
