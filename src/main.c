@@ -360,7 +360,7 @@ main(int argc, char **argv)
                             goto out;
         }
 
-	if (args.raw) {
+	if (args.raw) { // TODO: move into context
 	    dump_raw(ppacket);
 	}
 	

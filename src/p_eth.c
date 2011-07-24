@@ -286,7 +286,7 @@ eth_dump(struct packet *packet, struct context *ctx)
         }
     }
 
-    ctx->out("\n");
-    fflush(stdout);
+    ctx->out("\n"); 
+    fflush(stdout); // TODO: user configurable (in context)
     return sts;
 }
