@@ -1,6 +1,6 @@
 /*
  * p_icmp.c -- decodes ICMP protocol
- * Copyright (C) 2006  Davide Angelocola <davide.angelocola@gmail.com>
+ * Copyright (C) 2004-2011  Davide Angelocola <davide.angelocola@gmail.com>
  *
  * Pangolin is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include "pangolin.h"
 
 /* 
- * Struttura di un pacchetto ICMP
+ * ICMP packet
  *
  * 0                   1                   2                   3
  * 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -88,7 +88,7 @@ icmp_dump(struct packet *packet, U8 *src, U8 *dst)
 
     memset(&hdr, 0, sizeof(struct icmp_hdr));
     memcpy(&hdr, packet->data, sizeof(struct icmp_hdr));
-
+    
     fprintf(stdout, "icmp %s > %s ", src, dst);
 
     switch (hdr.icmp_type) {

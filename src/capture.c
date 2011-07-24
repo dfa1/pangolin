@@ -1,6 +1,6 @@
 /*
  * capture.c -- read a packet from the raw socket
- * Copyright (C) 2006  Davide Angelocola <davide.angelocola@gmail.com>
+ * Copyright (C) 2004-2011  Davide Angelocola <davide.angelocola@gmail.com>
  *
  * Pangolin is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,27 +41,15 @@ capture(struct packet *packet, int fd)
 
     memset(packet, 0, sizeof(struct packet));
 
-    /*
-     * Ricevo il pacchetto. E' interessante notare sia la presenza
-     * del parametro MSG_TRUNC sia il fatto che a questa chiamata
-     * vengono passati *solo* pacchetti che sono stati accettati
-     * dal filtro.
-     */
     if (recvfrom(fd, packet->base, PKT_DATA_LEN, MSG_TRUNC,
                  (struct sockaddr *) &from, &fromlen) < 0) {
         fprintf(stderr, "error: recvfrom(): %s", strerror(errno));
         return -1;
     }
 
-    /* Inizializzo gli altri campi del pacchetto. */
     packet->data = packet->base;
     packet->type = 0;
 
-    /*
-     * Se il pacchetto e' OUTGOING (cioe' sta uscendo da questa
-     * macchina ed e' diretto verso l'interfaccia di loopback
-     * allora lo posso scartare qui ritornando la costante 0.
-     */
     if (from.sll_pkttype == PACKET_OUTGOING) {
         if (from.sll_ifindex == loindex)
             return 0;
@@ -69,7 +57,6 @@ capture(struct packet *packet, int fd)
             packet->type = 0;
     }
 
-    /* Chiamo la ioctl(SIOCGSTAMP) per prendere il timestamp di questo pacchetto. */
     if (ioctl(fd, SIOCGSTAMP, &packet->time) < 0) {
         fprintf(stderr, "error: ioctl(SIOCGSTAMP): %s", strerror(errno));
         return -1;

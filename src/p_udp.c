@@ -1,6 +1,6 @@
 /*
  * p_udp.c -- decodes the UDP protocol
- * Copyright (C) 2006  Davide Angelocola <davide.angelocola@gmail.com>
+ * Copyright (C) 2004-2011  Davide Angelocola <davide.angelocola@gmail.com>
  *
  * Pangolin is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include "pangolin.h"
 
 /* 
- * Struttura di un pacchetto UDP
+ * UPD packet
  *
  * 0                   1                   2                   3   
  * 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
@@ -37,7 +37,7 @@
  */
 #define UDP_HDR_LEN 8
 
-/* Definita come da RFC 768. */
+/* see RFC 768. */
 struct udp_hdr
 {
     U16 udp_sport;
@@ -69,7 +69,7 @@ udp_dump(struct packet *packet, U8 *src, U8 *dst)
         fprintf(stdout, "udp %s:", src);
         pent = getprotobynumber(s);
 
-        if (pent == NULL)
+        if (pent == NULL) // TODO: refactor with p_tcp.c
             fprintf(stdout, "%d", s & 0xFFFF);
         else
             fprintf(stdout, "%s", pent->p_name);

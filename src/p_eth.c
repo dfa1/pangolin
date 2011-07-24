@@ -1,6 +1,6 @@
 /*
  * p_eth.c -- dump an ethernet frame
- * Copyright (C) 2006  Davide Angelocola <davide.angelocola@gmail.com>
+ * Copyright (C) 2004-2011  Davide Angelocola <davide.angelocola@gmail.com>
  *
  * Pangolin is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,23 +23,12 @@
 
 #include "pangolin.h"
 
-/* Il numero di byte di un indirizzo MAC. */
 #define ETH_ADDR_LEN 6
 
-/* 
- * Lunghezza dell'intestazione di un pacchetto Ethernet. E'
- * interessante notare che alcuni compilatori potrebbero aggiungere
- * dei byte di "padding" in modo da ottenere multipli di 4 o 8. Ad
- * esempio su macchine con una wordsize di 32 bit sizeof(struct
- * eth_hdr) torna 16, che non e' la risposta esatta :-).
- *
- * Il compilatore che abbiamo usato (GCC 3.2.2) sembra non affetto da
- * questo problema. In ogni caso in ETH_HDR_LEN e' definita la
- * lunghezza dell'intestazione ethernet (come da standard 802.3).
- */
+
+/* Ethernet header length as defined by 802.3 standard */
 #define ETH_HDR_LEN 14
 
-/* Intestazione di un pacchetto Ethernet (802.3). */
 struct eth_hdr
 {
     U8 eth_dhost[ETH_ADDR_LEN]; /* MAC destinazione. */
@@ -47,16 +36,12 @@ struct eth_hdr
     U16 eth_type;               /* Tipo di pacchetto o lunghezza. */
 };
 
-/* Tipi di pacchetto Ethernet. */
 #define ETH_TYPE_IP 0x0800      /* IPv4. */
 #define ETH_TYPE_IPv4 ETH_TYPE_IP
 #define ETH_TYPE_ARP 0x0806     /* ARP. */
 #define ETH_TYPE_RARP 0x8035    /* RARP. */
 
 
-/* Campo eth_type dell'intestazione 802.3. Questa tabella e'
- * consultata solo se lo sniffer non e' in grado di decodicare il
- * protocollo.*/
 PRIVATE struct eth_type
 {
     U16 begin;
@@ -284,14 +269,7 @@ eth_dump(struct packet *packet, int printhdr)
             s < 10 ? '0' : '\0', s + (float) packet->time.tv_usec / 1000000);
 
     if (printhdr) {
-        /*
-         * Non posso invocare eth_mac_addr() due volte nella
-         * _stessa_ chiamata a fprintf() poiche' dato che
-         * eth_mac_addr() torna l'indirizzo di un buffer
-         * statico, avrei che la seconda chiamata
-         * sovrascrivesse la prima.
-         */
-        char copy[20];
+        char copy[20]; // TODO: ugly
 
         strcpy(copy, eth_mac_addr(hdr.eth_shost));
         fprintf(stdout, "%s > %s: ", copy, eth_mac_addr(hdr.eth_dhost));

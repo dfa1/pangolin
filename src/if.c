@@ -1,6 +1,6 @@
 /*
  * if.c -- network interfaces handling
- * Copyright (C) 2006  Davide Angelocola <davide.angelocola@gmail.com>
+ * Copyright (C) 2004-2011  Davide Angelocola <davide.angelocola@gmail.com>
  *
  * Pangolin is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#include <features.h>           /* per i numeri di versione delle GLIBC. */
 
 #include <sys/ioctl.h>
 #include <sys/socket.h>
@@ -30,7 +29,8 @@
 #include <linux/if.h>
 #include <netinet/ether.h>
 
-/* Protocolli al secondo livello. */
+#include <features.h>           
+
 #if (__GLIBC__ >= 2) && (__GLIBC_MINOR >= 1)
 # include <netpacket/packet.h>
 # include <net/ethernet.h>
@@ -42,16 +42,12 @@
 
 #include "pangolin.h"
 
-/* La libreria C GNU (glibc) versione 2.1 non definisce SOL_PACKET. */
+/* GNU libc version 2.1 doesn't define SOL_PACKET. */
 #ifndef SOL_PACKET
 # define SOL_PACKET 263
 #endif
 
-/*
- * Lista tutte le interfacce di rete che rispondono ai seguenti criteri:
- *  - sono IPv4
- *  - non sono di connessione Point-To-Point (IFF_POINTOPOINT)
- */
+// TODO: this should get a if_accept function 
 PUBLIC int
 if_list(void)
 {
@@ -60,10 +56,6 @@ if_list(void)
     int fd, nif, i, sts = 0;
     unsigned rqlen;
 
-    /*
-     * Questo e' un cosidetto helper, serve per poter chiamare la
-     * ioctl() la quale necessita di un file descriptor valido.
-     */
     fd = socket(PF_INET, SOCK_DGRAM, 0);
 
     if (fd < 0) {
@@ -72,40 +64,25 @@ if_list(void)
         return -1;
     }
 
-    /* Richiedo al kernel di prendere tutte le interfacce. */
     ifc.ifc_buf = NULL;
-
-    /*
-     * Inizialmente creo spazio per due interfacce (dovrebbe andar
-     * bene quasi sempre :).
-     */
-    rqlen = 2 * sizeof(struct ifreq);
+    rqlen = 2 * sizeof(struct ifreq); // TODO: this is a bug, ioctl
+				      // always returns two interfaces
 
     do {
-        /*
-         * Riempo la struttura della richiesta con rqlen e
-         * alloco un buffer per il valore di ritorno.
-         */
         ifc.ifc_len = rqlen;
         ifc.ifc_buf = realloc(ifc.ifc_buf, ifc.ifc_len);
 
-        /*
-         * Se l'allocazione della memoria fallisce chiudo il
-         * file descriptor e ritorno errore.
-         */
         if (ifc.ifc_buf == NULL) {
             fprintf(stderr, "error: realloc()\n");
             sts = 1;
             goto outclose;
         }
 
-        /* Chiamo la ioctl(SIOCGIFCONF). */
         if (ioctl(fd, SIOCGIFCONF, &ifc) < 0) {
             fprintf(stderr, "error: ioctl(SIOCGIFCONF): %s\n",
                     strerror(errno));
             sts = -1;
 
-            /* Dealloco il buffer delle interfacce, se necessario. */
             if (ifc.ifc_buf)
                 free(ifc.ifc_buf);
 
@@ -115,18 +92,9 @@ if_list(void)
         rqlen *= 2;
     } while (rqlen < sizeof(struct ifreq) + ifc.ifc_len);
 
-    /*
-     * A questo non devo far altro che trasformare il buffer
-     * tornato dalla ioctl(SIOCGIFCONF) in un array di strutture
-     * ifreq.
-     */
     nif = ifc.ifc_len / sizeof(struct ifreq);
     ifr = ifreqs = realloc(ifc.ifc_buf, ifc.ifc_len);
 
-    /*
-     * Se l'allocazione della memoria fallisce chiudo il
-     * file descriptor e ritorno errore.
-     */
     if (ifr == NULL) {
         fprintf(stderr, "error: realloc()\n");
         sts = -1;
@@ -135,19 +103,14 @@ if_list(void)
 
     fprintf(stdout, "Listing available interface(s):\n");
 
-    /* Itero sull'array in cerca di interfacce "interessanti". */
     for (i = 0; i < nif; i++, ifr++) {
         U8 mac[6];
 
-        /* Sono interessato solo a interfacce IPv4. */
+        /* skip non IPv4 interfaces */
         if (ifr->ifr_addr.sa_family != PF_INET)
             continue;
 
-        /*
-         * Richiedo i flags per l'interfaccia poiche'
-         * ioctl(SIOCGIFCONF) inizializza solo i membri name,
-         * family and address.
-         */
+	/* skip PPP interfaces */
         if (ioctl(fd, SIOCGIFFLAGS, ifr) < 0) {
             fprintf(stderr, "error: ioctl(SIOCGIFFLAGS): %s\n",
                     strerror(errno));
@@ -155,15 +118,10 @@ if_list(void)
             goto outfree;
         }
 
-        /* Non ci interessano le interfacce Point-To-Point. */
         if (ifr->ifr_flags & IFF_POINTOPOINT)
             continue;
 
-        /*
-         * Ok, questa interfaccia soddisfa i miei criteri
-         * quindi la posso annoverare nella lista delle
-         * interfacce valide.
-         */
+	/* print accepted interface */
         memcpy(&mac, &ifr->ifr_hwaddr, 6);
         fprintf(stdout, "  %s\t%s%s%s\n", ifr->ifr_name,
                 ifr->ifr_flags & IFF_UP ? "UP " : "",
@@ -179,25 +137,14 @@ if_list(void)
     return sts;
 }
 
-/*
- * Questa chiamata ioctl() serve per prendere l'indice
- * dell'interfaccia. Questa informazione e' essenziale
- * per diversi tipi di richiesta con ioctl().
- */
 PUBLIC int
 if_index(int fd, const char *iface)
 {
     struct ifreq ifreq;
 
-    /* Preparo la richiesta. */
     memset(&ifreq, 0, sizeof(struct ifreq));
     strncpy(ifreq.ifr_name, iface, IFNAMSIZ);
 
-    /*
-     * Richiedo l'indice di interfaccia al kernel. In presenza di
-     * errori questa funzione * * NON CHIUDE * * il socket
-     * descriptor: e' responsabilita' del chiamante farlo.
-     */
     if (ioctl(fd, SIOCGIFINDEX, &ifreq) == -1) {
         fprintf(stderr, "error: interface %s: %s\n", iface, strerror(errno));
         return -1;
@@ -212,11 +159,9 @@ if_promisc(int fd, const char *iface, int state)
 {
     struct ifreq ifreq;
 
-    /* Preparo la richiesta. */
     memset(&ifreq, 0, sizeof(struct ifreq));
     strncpy(ifreq.ifr_name, iface, IFNAMSIZ);
 
-    /* Entro in modalita' promiscua. */
     if (ioctl(fd, SIOCGIFFLAGS, &ifreq) < 0) {
         fprintf(stderr, "error: ioctl(SIOCGIFFLAGS): %s\n", strerror(errno));
         return -1;
@@ -235,12 +180,6 @@ if_promisc(int fd, const char *iface, int state)
     return 0;
 }
 
-
-/*
- * Crea un file descriptor in grado di catturare in modo promiscuo
- * tutti i pacchetti dell'interfaccia specificata dal parametro
- * iface.
- */
 PUBLIC int
 if_open(const char *iface)
 {
@@ -250,20 +189,7 @@ if_open(const char *iface)
     int err;
     size_t errlen = sizeof(int);
 
-    /*
-     * Viene creato il socket come PF_PACKET poiche' deve essere
-     * in grado di leggere i pacchetti al livello 2 (OSI Physical
-     * Layer). Il parametro SOCK_RAW serve per indicare al kernel
-     * di far passare i pacchetti dal driver di dispositivo senza
-     * fare nessuna modifica al payload del pacchetto mentre
-     * ETH_P_ALL (3 parametro della socket, indica che tipo di
-     * protocollo si vuole) e' usato per poter leggere pacchetti
-     * di qualsiasi protocollo (tutto:).
-     *
-     * Solo a processi con effective uid pari a 0 (o che hanno la
-     * capability CAP_NET_RAW) possono aprire socket PF_PACKET.
-     */
-    fd = socket(PF_PACKET, SOCK_RAW, TONET16(ETH_P_ALL));
+    fd = socket(PF_PACKET, SOCK_RAW, TONET16(ETH_P_ALL)); // TODO: extension point
 
     if (fd < 0) {
         fprintf(stderr, "error: cannot create socket: %s\n", strerror(errno));
@@ -271,14 +197,7 @@ if_open(const char *iface)
         goto out;
     }
 
-
-    /*
-     * Viene collegato il packet socket all'intefaccia
-     * specificata. Questo permette di sniffare solo pacchetti in
-     * arrivo su questa interfaccia altrimenti verrebbero
-     * catturati anche pacchetti OUTGOING provenienti da altre
-     * interfacce.
-     */
+    /* bind socket to a specific interface */
     memset(&sll, 0, sizeof(sll));
     sll.sll_family = PF_PACKET;
     sll.sll_ifindex = if_index(fd, iface);
@@ -296,8 +215,7 @@ if_open(const char *iface)
         goto outclose;
     }
 
-
-    /* Mi assicuro che non si sono errori pendenti sul descrittore socket */
+    /* check for pending errors on socket */
     if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &errlen) == -1) {
         fprintf(stderr, "error: getsockopt(): %s\n", strerror(errno));
         err = -1;
@@ -310,11 +228,7 @@ if_open(const char *iface)
         goto outclose;
     }
 
-    /*
-     * Viene chiamata setsockopt() con l'indice di interfaccia e
-     * con il parametro PACKET_MR_PROMISC per poter mettere
-     * l'interfaccia in modo promiscuo.
-     */
+    /* enable promisc mode */
     memset(&mreq, 0, sizeof(struct packet_mreq));
     mreq.mr_type = PACKET_MR_PROMISC;
     mreq.mr_ifindex = if_index(fd, iface);
@@ -324,10 +238,7 @@ if_open(const char *iface)
         goto outclose;
     }
 
-
-    if (setsockopt
-        (fd, SOL_SOCKET, PACKET_ADD_MEMBERSHIP, &mreq,
-         sizeof(struct packet_mreq)) < 0) {
+    if (setsockopt(fd, SOL_SOCKET, PACKET_ADD_MEMBERSHIP, &mreq, sizeof(struct packet_mreq)) < 0) {
         fprintf(stderr,
                 "error: cannot enter promiscuous mode on interface %s: %s\n",
                 iface, strerror(errno));
@@ -335,10 +246,7 @@ if_open(const char *iface)
         goto outclose;
     }
 
-    /*
-     * Viene chiamata setsockopt() per permettere al socket
-     * descriptor fd di ricevere anche i pacchetti multicast.
-     */
+    /* enabling multicast */
     memset(&mreq, 0, sizeof(struct packet_mreq));
     mreq.mr_type = PACKET_MR_ALLMULTI;
     mreq.mr_ifindex = if_index(fd, iface);
@@ -367,7 +275,6 @@ if_open(const char *iface)
     return -1;
 }
 
-/* Chiude il socket descriptor. */
 PUBLIC void
 if_close(int fd)
 {
@@ -375,32 +282,12 @@ if_close(int fd)
     (void) close(fd);
 }
 
-
-/*
- * Chiama la getsockopt() in modo da prendere le statistiche sui
- * pacchetti. 
- */
 PUBLIC int
 if_stats(int fd)
 {
     struct tpacket_stats stats;
     socklen_t statslen = sizeof(struct tpacket_stats);
 
-    /*
-     * Richiedo le statistiche al kernel. In presenza di errori
-     * questa funzione * * NON CHIUDE * * il socket descriptor: e'
-     * responsabilita' del chiamante farlo.
-     *
-     * Inoltre in queste statistiche e usando i socket PF_PACKET
-     * valgono le seguenti affermazioni:
-     *
-     * - tp_packets non conta il numero di pacchetti arrivati al
-     *   filtro, ma il numero di pacchetti che hanno passato il
-     *   filtro stesso
-     *
-     * - tp_drops e' il numero di pacchetti perche' il buffer
-     *   di ricezione del socket non era abbastanza grande.
-     */
     if (getsockopt(fd, SOL_PACKET, PACKET_STATISTICS, &stats, &statslen) < 0) {
         fprintf(stderr,
                 "error: cannot fetch packet socket statistics: %s\n",
@@ -408,11 +295,6 @@ if_stats(int fd)
         return -1;
     }
 
-    /*
-     * Stampo le statistiche. E' interessante notare che al numero
-     * di drops fatto dal kernel e' stato sommato il numero di
-     * drops fatto dallo sniffer.
-     */
     fprintf(stdout, "\nPacket statistics\n-----------------\n");
     fprintf(stdout, "\n%u packet%s captured.", stats.tp_packets,
             stats.tp_packets > 1 ? "s" : "");
@@ -426,16 +308,13 @@ if_filter(int fd, struct sock_filter *code, U16 size)
 {
     struct sock_fprog filter;
 
-    /* Inizializzo il filtro. */
     filter.len = size;
     filter.filter = code;
 
-    /* Aggancio il filtro. */
     if (setsockopt(fd, SOL_SOCKET, SO_ATTACH_FILTER,
                    &filter, sizeof(filter)) < 0) {
+	// TODO: this cleanup is really necessary?
         int dummy;
-
-        /* Rimuovo il filtro e avverto l'utente. */
         setsockopt(fd, SOL_SOCKET, SO_DETACH_FILTER, &dummy, sizeof(int));
         fprintf(stderr, "warning: cannot set the filter\n");
         return -1;

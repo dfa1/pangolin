@@ -1,20 +1,20 @@
 Pangolin - a simple sniffer for GNU/Linux
 ==========================================
 
-This is Pangolin 1.0.
+This is Pangolin 1.1.
 
 
 What is it?
 -----------
 
 Pangolin is a simple sniffer for GNU/Linux. It was written for
-didactical purposes infacts it use raw sockets and some BPF filters..
+didactical purposes infacts it use raw sockets and some BPF filters.
 
 
 License
 -------
 
-Copyright (C), 2006 Davide Angelocola <davide.angelocola@gmail.com>
+Copyright (C), 2004-2011 Davide Angelocola <davide.angelocola@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,28 +32,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 02111-1307 USA.
 
 
-Web Resources
--------------
-
-The official website is:
-
-  http://dfa.slackware.it/Pangolin.html
-
-
 Author
 ------
 
 Pangolin was written by Davide Angelocola. 
 
 
-Contact Information
--------------------
-
-http://dfa.slackware.it/ContactInfo.html
-
-
 That's all folks!
 
 -- dfa
 
-(This file was generated from the package metadata on Sat Sep 16 19:04:10 2006)

@@ -1,6 +1,6 @@
 /*
  * p_bootp.c -- decodes BOOTP protocol
- * Copyright (C) 2006  Davide Angelocola <davide.angelocola@gmail.com>
+ * Copyright (C) 2004-2011  Davide Angelocola <davide.angelocola@gmail.com>
  *
  * Pangolin is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,8 +94,6 @@ bootp_ip(U8 *addr, U32 *raw)
     memcpy(&in, raw, 4);
     memcpy(addr, inet_ntoa(in), 16);
 }
-
-
 
 PUBLIC void
 bootp_dump(struct packet *packet)

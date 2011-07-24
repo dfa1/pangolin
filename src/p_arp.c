@@ -1,6 +1,6 @@
 /*
  * p_arp.c -- decodes the ARP protocol
- * Copyright (C) 2006  Davide Angelocola <davide.angelocola@gmail.com>
+ * Copyright (C) 2004-2011  Davide Angelocola <davide.angelocola@gmail.com>
  *
  * Pangolin is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,29 +20,21 @@
 #include <stdio.h>
 #include <string.h>
 
-/* Includo questo file per le costanti di arp_hrd2str(). */
+/* for arp_hrd2str() */
 #include <net/if_arp.h>
 
 #include "pangolin.h"
 
-/* Lunghezza dell'intestazione del pacchetto ARP. */
 #define ARP_HDR_LEN 8
 
-/* 
- * Intestazione di un pacchetto ARP (RFC 826). E' da notare che i nomi
- * dei campi di questa struttura NON corrispondono ai nomi usati
- * dell'RFC 826.
- */
 struct arp_hdr
 {
-    /* Parte FISSA dell'intestazione. */
-    U16 arp_hrd;                /* format of HaRDware address. */
-    U16 arp_pro;                /* format of PROtocol address. */
-    U8 arp_hln;                 /* Hardware LeNgth address. */
-    U8 arp_pln;                 /* Protocol LeNgth address. */
+    U16 arp_hrd;                /* format of hardware address. */
+    U16 arp_pro;                /* format of protocol address. */
+    U8 arp_hln;                 /* hardware length address. */
+    U8 arp_pln;                 /* protocol length address. */
     U16 arp_op;                 /* Opcode. */
 
-    /* Parte VARIABILE dell'intestazione. */
 #ifdef VARIABLE
     U8 arp_sha[];               /* Sender Hardware Address. */
     U8 arp_spa[];               /* Sender Protocol Address. */
@@ -184,9 +176,8 @@ arp_op2str(U16 op)
     }
 }
 
-/* p_eth.c */
-EXTERN const char *eth_mac_addr(U8 *);
 
+EXTERN const char *eth_mac_addr(U8 *, char *, size_t); // TODO: declare in pangolin.h 
 
 PUBLIC void
 arp_dump(struct packet *packet)
@@ -230,22 +221,14 @@ arp_dump(struct packet *packet)
                 case ARPOP_RREQUEST:{
                     U8 sha[6];
                     U8 tha[6];
-                    char copy[20];
+                    char src[20];
+                    char dst[20];
 
                     memcpy(sha, packet->data, 6);
                     memcpy(tha, packet->data + hdr.arp_hln + hdr.arp_pln, 6);
-                    /*
-                     * Non posso invocare eth_mac_addr()
-                     * due volte nella _stessa_ chiamata a
-                     * fprintf() poiche' dato che
-                     * eth_mac_addr() torna l'indirizzo di
-                     * un buffer statico, avrei che la
-                     * seconda chiamata sovrascrivesse la
-                     * prima.
-                     */
-                    strcpy(copy, eth_mac_addr(tha));
-                    fprintf(stdout, "rarp request %s tell %s",
-                            copy, eth_mac_addr(sha));
+		    eth_mac_addr(sha, src, sizeof src);
+		    eth_mac_addr(tha, dst, sizeof dst);
+                    fprintf(stdout, "rarp request %s tell %s", , eth_mac_addr(sha));
                     break;
                 }
 

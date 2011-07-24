@@ -1,6 +1,6 @@
 /*
  * p_ip.c -- decodes the IP protocol
- * Copyright (C) 2006  Davide Angelocola <davide.angelocola@gmail.com>
+ * Copyright (C) 2004-2011  Davide Angelocola <davide.angelocola@gmail.com>
  *
  * Pangolin is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include "pangolin.h"
 
 /* 
- * Struttura di un pacchetto IP
+ * IP packet structure:
  *
  * 0                   1                   2                   3   
  * 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 

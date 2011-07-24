@@ -1,6 +1,6 @@
 /*
  * p_tcp.c -- decodes the TCP protocol
- * Copyright (C) 2006  Davide Angelocola <davide.angelocola@gmail.com>
+ * Copyright (C) 2004-2011  Davide Angelocola <davide.angelocola@gmail.com>
  *
  * Pangolin is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,10 @@
 
 #include "pangolin.h"
 
-/* Lunghezza in byte dell'intestazione TCP. */
 #define TCP_HDR_LEN 20
 
 /* 
- * Intestazione di un pacchetto TCP. I nomi dei campi NON
- * corrispondono a quelli dell'RFC 793.
+ * TCP packet (naming does not follows RFC 793)
  *
  *  0                   1                   2                   3
  *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -53,7 +51,6 @@
 
 struct tcp_hdr
 {
-    /* Parte FISSA dell'intestazione. */
     U16 tcp_sport;              /* Source Port. */
     U16 tcp_dport;              /* Destination Port. */
     U32 tcp_seq;                /* Sequence Number. */
@@ -63,10 +60,8 @@ struct tcp_hdr
     U16 tcp_win;                /* Window. */
     U16 tcp_sum;                /* Checksum. */
     U16 tcp_urp;                /* Urgent Pointer. */
-    /* Parte VARIABILE dell'intestazione (Options + Padding). */
 };
 
-/* Flag per tcp_flags. */
 #define TCP_FLAG_FIN (1 << 0)   /* FIN (0x01). */
 #define TCP_FLAG_SYN (1 << 1)   /* SYN (0x02). */
 #define TCP_FLAG_RST (1 << 2)   /* RST (0x04). */

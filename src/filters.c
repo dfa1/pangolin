@@ -1,6 +1,6 @@
 /*
  * filters.c -- predefined filters
- * Copyright (C) 2006  Davide Angelocola <davide.angelocola@gmail.com>
+ * Copyright (C) 2004-2011  Davide Angelocola <davide.angelocola@gmail.com>
  *
  * Pangolin is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,6 @@
 
 #include "pangolin.h"
 
-/*
- * Filtro per pacchetti ARP:
- */
 PUBLIC struct sock_filter ARP_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 1, 0x00000806},
@@ -29,9 +26,6 @@ PUBLIC struct sock_filter ARP_code[] = {
     {0x6, 0, 0, 0x00000000}
 };
 
-/*
- * Filtro per pacchetti ARP:
- */
 PUBLIC struct sock_filter RARP_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 1, 0x00008035},
@@ -39,9 +33,6 @@ PUBLIC struct sock_filter RARP_code[] = {
     {0x6, 0, 0, 0x00000000}
 };
 
-/*
- * Filtro per pacchetti IP:
- */
 PUBLIC struct sock_filter IP_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 1, 0x00000800},
@@ -49,9 +40,6 @@ PUBLIC struct sock_filter IP_code[] = {
     {0x6, 0, 0, 0x00000000}
 };
 
-/*
- * Filtro per pacchetti TCP:
- */
 PUBLIC struct sock_filter TCP_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 3, 0x00000800},
@@ -61,9 +49,6 @@ PUBLIC struct sock_filter TCP_code[] = {
     {0x6, 0, 0, 0x00000000}
 };
 
-/*
- * Filtro per pacchetti UDP:
- */
 PUBLIC struct sock_filter UDP_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 3, 0x00000800},
@@ -73,9 +58,7 @@ PUBLIC struct sock_filter UDP_code[] = {
     {0x6, 0, 0, 0x00000000}
 };
 
-/*
- * Filtro per pacchetti ICMP:
- */
+
 PUBLIC struct sock_filter ICMP_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 3, 0x00000800},
@@ -85,11 +68,7 @@ PUBLIC struct sock_filter ICMP_code[] = {
     {0x6, 0, 0, 0x00000000}
 };
 
-/*
- * Filtro per indirizzo IP. Questo filtro e' piu' complicato degli
- * altri: infatti bisogna anche cambiare l'ip all'interno della
- * struttura del filtro:
- */
+// customizable
 PUBLIC struct sock_filter HOST_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 4, 0x00000800},
@@ -107,11 +86,7 @@ PUBLIC struct sock_filter HOST_code[] = {
     {0x6, 0, 0, 0x00000000}
 };
 
-/*
- * Filtro per i protocolli TCP/IP o UDP/IP. Questo filtro seleziona
- * solo il traffico con porta sorgente e/o destinazione uguale a
- * quella specificata dall'utente:
- */
+// TCP/UDP port filter
 PUBLIC struct sock_filter PORT_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 12, 0x00000800},
