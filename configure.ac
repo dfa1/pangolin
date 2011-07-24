@@ -1,12 +1,12 @@
 dnl Autoconf init.
 AC_PREREQ(2.60)
-AC_INIT(pangolin, 1.0, davide.angelocola@gmail.com)
+AC_INIT(pangolin, 1.1, davide.angelocola@gmail.com)
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADER([src/config.h])
 
 dnl Notices (for `configure --help').
-AC_COPYRIGHT([Copyright (C) 2006 Davide Angelocola])
-AC_REVISION([$Revision: 1.0 $])
+AC_COPYRIGHT([Copyright (C) 2004-2011 Davide Angelocola])
+AC_REVISION([$Revision: 1.1 $])
 
 dnl Automake init.
 AM_INIT_AUTOMAKE([foreign no-define 1.9 -Wall])
