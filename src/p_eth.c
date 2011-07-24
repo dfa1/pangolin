@@ -258,10 +258,10 @@ eth_dump(struct packet *packet, int printhdr)
         memset(&hdr, 0, ETH_HDR_LEN);
         memcpy(&hdr, packet->data, ETH_HDR_LEN);
         type = TOHOST16(hdr.eth_type);
+    } else {
+	type = TOHOST16(packet->type);
     }
-    else
-        type = TOHOST16(packet->type);
-
+    
     s = packet->time.tv_sec % 60;
     fprintf(stdout, "%s:%c%2.6f ", timestamp(&packet->time),
             s < 10 ? '0' : '\0', s + (float) packet->time.tv_usec / 1000000);
