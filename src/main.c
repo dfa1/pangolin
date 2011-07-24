@@ -81,6 +81,7 @@ struct arguments
     int list;
     int mac;
     int raw;
+    int dns;
 };
 
 PRIVATE struct arguments args;
@@ -115,7 +116,6 @@ sigterm_handler(int signal)
     cleanup(EXIT_FAILURE);
 }
 
-
 const char *argp_program_version = PACKAGE_VERSION;
 const char *argp_program_bug_address = PACKAGE_BUGREPORT;
 const char program_doc[] = "a simple sniffer for GNU/linux";
@@ -126,11 +126,12 @@ PRIVATE const struct argp_option options[] = {
 	{ 0, 'p', "protocol", 0, "protocol filtering: arp, rarp, ip, icmp, tcp, udp"},
  	{ 0, 'h', "host", 0, "host filtering"},
  	{ 0, 's', "port", 0, "port filtering"},
-	{ 0, 'n', 0, 0, "don't switch to promiscuous mode"},
+	{ 0, 'P', 0, 0, "don't switch to promiscuous mode"},
 	{ 0, 'c', "count", 0, "stop after count packet" },
 	{ 0, 'l', 0, 0, "list interfaces" },
 	{ 0, 'e', 0, 0, "print ethernet mac addresses" },
 	{ 0, 'r', 0, 0, "dump raw packets" },
+	{ 0, 'n', 0, 0, "don't resolve DNS names" },
 	{ 0 }
 };
 /* *INDENT-ON* */
@@ -151,10 +152,14 @@ parse_opt(int key, char *arg, struct argp_state *state)
                 }
 
                 break;
+ 
+            case 'n':
+		args->dns = 0;
+		break;
 		
             case 'r':
-		 args->raw = 1;
-		 break;
+		args->raw = 1;
+		break;
 
             case 'e':
                 args->mac = 1;
@@ -185,7 +190,7 @@ parse_opt(int key, char *arg, struct argp_state *state)
                 args->list = 1;
                 break;
 
-            case 'n':
+            case 'P':
                 args->promisc = 0;
                 break;
 
@@ -273,7 +278,8 @@ main(int argc, char **argv)
     args.mac = 0;
     args.port = 0;
     args.raw = 0;
-
+    args.dns = 1;
+    
     if (argp_parse(&argp, argc, argv, ARGP_PARSE_ARGV0 | ARGP_NO_EXIT, 0, &args) != 0) {
         cleanup(EXIT_FAILURE);
     }
@@ -292,7 +298,7 @@ main(int argc, char **argv)
     if (fd < 0) {
         cleanup(EXIT_FAILURE);
     }
-    
+
     if (args.promisc)
         if (if_promisc(fd, args.iface, 1))
             cleanup(EXIT_FAILURE);
@@ -335,7 +341,7 @@ main(int argc, char **argv)
     loindex = if_index(fd, "lo");
     struct context context;
     context.print_mac_addr = args.mac;
-    context.resolve_dns = 1; /* TODO: dummy */
+    context.resolve_dns = args.dns; 
     context.out = out_to_stdout;
 
     for (;;) {

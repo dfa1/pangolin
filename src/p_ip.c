@@ -97,6 +97,7 @@ ip_dump(struct packet *packet, struct context *ctx)
     memcpy(&vhl, packet->data, 1);
     memcpy(&hdr, packet->data, (vhl & 0xF) * 4);
     packet->data += (vhl & 0xF) * 4;
+
     if (ctx->resolve_dns) {
 	resolve(src, &hdr.ip_src); 
 	resolve(dst, &hdr.ip_dst);

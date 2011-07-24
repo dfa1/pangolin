@@ -11,4 +11,4 @@ dist-hook:
 
 
 valgrind: all
-	sudo valgrind --leak-check=full src/pangolin -i lo -e
+	sudo valgrind --leak-check=full src/pangolin -i lo -en

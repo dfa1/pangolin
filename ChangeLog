@@ -1,5 +1,9 @@
 2011-07-24  Davide Angelocola  <davide.angelocola@gmail.com>
 
+	* use -P to disable promisc mode
+
+	* added -n to disable dns resolution
+
 	* fix: make sure that resolve() always zero-terminates strings
 
 	* ref: p_eth_mac_addr() doesn't use a static buffer anymore
