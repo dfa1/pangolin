@@ -1,6 +1,18 @@
+2011-07-24  Davide Angelocola  <davide.angelocola@gmail.com>
+
+	* fix: make sure that resolve() always zero-terminates strings
+
+	* ref: p_eth_mac_addr() doesn't use a static buffer anymore
+
+	* ref: removed italian comments
+
+
 2006-08-26  Davide Angelocola  <davide.angelocola@gmail.com>
 
 	* released version 1.0
 
 	* using GNU autotools
 
+2004-06-20  Davide Angelocola <davide.angelocola@gmail.com>
+
+	* computer science network course trimestral project
