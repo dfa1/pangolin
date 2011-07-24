@@ -197,7 +197,7 @@ PRIVATE struct eth_type
 PRIVATE const char *
 eth_type2str(short n)
 {
-    register struct eth_type *p;
+    struct eth_type *p; // TODO: rewrite using gperf
     char *res = "unknown";
 
     for (p = eth_types; p->begin != 0xFFFF; p++) {

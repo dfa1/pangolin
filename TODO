@@ -10,3 +10,4 @@
 - ref: use SIOCGIFCOUNT
 - ref: unit tests with automake
 - fix: memory leak in p_ip.c:resolve()
+- enh: use GNU gperf for static keywords
