@@ -1,4 +1,4 @@
-SUBDIRS = src
+SUBDIRS = src test
 
 # Avoid: .svn - svn directories
 #        *~  - emacs backups
