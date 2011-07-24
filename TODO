@@ -7,6 +7,6 @@
 - ref: pass a filter function to if_list
 - ref: remove italian comments
 - ref: use perror
-- ref: use IOGIFCOUNT
+- ref: use SIOCGIFCOUNT
 - ref: unit tests with automake
 - fix: memory leak in p_ip.c:resolve()
