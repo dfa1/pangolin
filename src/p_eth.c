@@ -241,16 +241,15 @@ static void eth_dump_raw(struct packet *packet, struct context *ctx)
     ctx->out("\n");
 }
 
-int eth_dump(struct packet *packet, struct context *ctx)
+void eth_dump(struct packet *packet, struct context *ctx)
 {
     if (ctx->dump_raw_packet) {
 	eth_dump_raw(packet, ctx);
-	return 1;
+	return;
     }
     
     struct eth_hdr hdr;
     U16 type;
-    int sts = 0;		// TODO: really necessary?
     U8 s;
 
     if (!packet->type) {
@@ -281,13 +280,11 @@ int eth_dump(struct packet *packet, struct context *ctx)
 	switch (type) {
 	case ETH_TYPE_IP:
 	    ip_dump(packet, ctx);
-	    sts = 1;
 	    break;
 
 	case ETH_TYPE_ARP:
 	case ETH_TYPE_RARP:
 	    arp_dump(packet, ctx);
-	    sts = 1;
 	    break;
 
 	default:
@@ -298,5 +295,4 @@ int eth_dump(struct packet *packet, struct context *ctx)
 
     ctx->out("\n");
     fflush(stdout);		// TODO: user configurable (in context)
-    return sts;
 }

@@ -53,8 +53,8 @@ struct context {
     void (*err) (const char *fmt, ...);
 };
 
-/* decoders */
-int eth_dump(struct packet *, struct context *);
+/* decoders TODO: this name sucks*/
+void eth_dump(struct packet *, struct context *);
 void arp_dump(struct packet *, struct context *);
 void ip_dump(struct packet *, struct context *);
 void icmp_dump(struct packet *, U8 *, U8 *, struct context *);
