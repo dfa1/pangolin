@@ -29,7 +29,7 @@
 #include "config.h"
 #include "pangolin.h"
 
-int fd = -1;
+static int fd = -1;
 
 struct arguments {
     char *iface;
@@ -318,13 +318,10 @@ int main(int argc, char **argv)
     context.print_mac_addr = args.mac;
     context.resolve_dns = args.dns;
     context.out = out_to_stdout;
-
+    struct packet packet;
+    
     for (;;) {
-	struct packet packet, *ppacket = &packet;	// TODO: this
-	// definitevely
-	// needs some love
-
-	switch (capture(ppacket, fd, loindex)) {
+	switch (capture(&packet, fd, loindex)) {
 	case 0:
 	    if (!errno)
 		continue;
@@ -340,10 +337,10 @@ int main(int argc, char **argv)
 	}
 
 	if (args.raw) {		// TODO: move into context
-	    dump_raw(ppacket);
+	    dump_raw(&packet);
 	}
 
-	eth_dump(ppacket, &context);
+	eth_dump(&packet, &context);
     }
 
  out:
