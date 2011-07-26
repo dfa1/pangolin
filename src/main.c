@@ -29,11 +29,6 @@
 #include "config.h"
 #include "pangolin.h"
 
-/* capture.c */
-int capture(struct packet *, int);
-
-int loindex;		// TODO: global
-
 int fd = -1;
 
 struct arguments {
@@ -318,7 +313,7 @@ int main(int argc, char **argv)
 	if_filter(fd, HOST_code, 14);
     }
 
-    loindex = if_index(fd, "lo");
+    int loindex = if_index(fd, "lo");
     struct context context;
     context.print_mac_addr = args.mac;
     context.resolve_dns = args.dns;
@@ -329,7 +324,7 @@ int main(int argc, char **argv)
 	// definitevely
 	// needs some love
 
-	switch (capture(ppacket, fd)) {
+	switch (capture(ppacket, fd, loindex)) {
 	case 0:
 	    if (!errno)
 		continue;

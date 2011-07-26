@@ -70,6 +70,9 @@ int if_promisc(int, const char *, int);
 int if_stats(int);
 int if_filter(int, struct sock_filter *, U16);
 
+/* capture.c */
+int capture(struct packet *, int, int);
+
 /* BPF */
 struct sock_filter ARP_code[];
 struct sock_filter RARP_code[];
