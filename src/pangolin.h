@@ -74,12 +74,12 @@ int if_filter(int, struct sock_filter *, U16);
 int capture(struct packet *, int, int);
 
 /* BPF */
-struct sock_filter ARP_code[];
-struct sock_filter RARP_code[];
-struct sock_filter IP_code[];
-struct sock_filter ICMP_code[];
-struct sock_filter TCP_code[];
-struct sock_filter UDP_code[];
+extern struct sock_filter ARP_code[];
+extern struct sock_filter RARP_code[];
+extern struct sock_filter IP_code[];
+extern struct sock_filter ICMP_code[];
+extern struct sock_filter TCP_code[];
+extern struct sock_filter UDP_code[];
 
-struct sock_filter PORT_code[];	// customizable
-struct sock_filter HOST_code[];	// customizable
+extern struct sock_filter PORT_code[];	// customizable
+extern struct sock_filter HOST_code[];	// customizable
