@@ -50,8 +50,7 @@
  * +---------------------------------------------------------------+
  */
 
-struct bootp_hdr
-{
+struct bootp_hdr {
     U8 bootp_op;
     U8 bootp_htype;
     U8 bootp_hlen;
@@ -69,25 +68,23 @@ struct bootp_hdr
     U8 bootp_vendor[64];
 };
 
-PRIVATE const char *
-bootp_op2str(U8 op)
+PRIVATE const char *bootp_op2str(U8 op)
 {
     switch (op) {
-            case 0:
-                return "ok";
-            case 1:
-                return "query";
-            case 2:
-                return "reply";
-            case 3:
-                return "error";
-            default:
-                return "unknown";
+    case 0:
+	return "ok";
+    case 1:
+	return "query";
+    case 2:
+	return "reply";
+    case 3:
+	return "error";
+    default:
+	return "unknown";
     }
 }
 
-PRIVATE void
-bootp_ip(U8 *addr, U32 *raw)
+PRIVATE void bootp_ip(U8 * addr, U32 * raw)
 {
     struct in_addr in;
 
@@ -95,8 +92,7 @@ bootp_ip(U8 *addr, U32 *raw)
     memcpy(addr, inet_ntoa(in), 16);
 }
 
-PUBLIC void
-bootp_dump(struct packet *packet, struct context *ctx)
+PUBLIC void bootp_dump(struct packet *packet, struct context *ctx)
 {
     struct bootp_hdr hdr;
     U8 sa[16], ca[16], ya[16], ga[16];
@@ -108,5 +104,5 @@ bootp_dump(struct packet *packet, struct context *ctx)
     bootp_ip(ya, &hdr.bootp_ya);
     bootp_ip(ga, &hdr.bootp_ga);
     ctx->out("BOOTP/DHCP %s: %s > %s ip %s gw %s",
-            bootp_op2str(hdr.bootp_op), sa, ca, ya, ga);
+	     bootp_op2str(hdr.bootp_op), sa, ca, ya, ga);
 }

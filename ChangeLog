@@ -1,3 +1,7 @@
+2011-07-26  Davide Angelocola  <davide.angelocola@gmail.com>
+
+	* indent target in top level Makefile
+
 2011-07-24  Davide Angelocola  <davide.angelocola@gmail.com>
 
 	* use -P to disable promisc mode

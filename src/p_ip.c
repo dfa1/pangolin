@@ -43,8 +43,7 @@
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
 
-struct ip_hdr
-{
+struct ip_hdr {
     U8 ip_vh;
     U8 ip_tos;
     U16 ip_len;
@@ -57,9 +56,8 @@ struct ip_hdr
     U32 ip_dst;
 };
 
-PRIVATE void
-resolve(U8 *buf, U32 *raw) /* TODO: caching */
-{
+PRIVATE void resolve(U8 * buf, U32 * raw)
+{				/* TODO: caching */
     struct hostent *hp;
     char *addr;
     size_t n;
@@ -67,27 +65,26 @@ resolve(U8 *buf, U32 *raw) /* TODO: caching */
     hp = gethostbyaddr(raw, 4, PF_INET);
 
     if (hp != NULL) {
-        n = strlen(hp->h_name);
+	n = strlen(hp->h_name);
 
-        if (n > 64)
-            goto dotted;
+	if (n > 64)
+	    goto dotted;
 
-        addr = hp->h_name;
+	addr = hp->h_name;
     } else {
-        struct in_addr in;
+	struct in_addr in;
 
-      dotted:
-        memcpy(&in, raw, 4);
-        addr = inet_ntoa(in);
-        n = 16;
+ dotted:
+	memcpy(&in, raw, 4);
+	addr = inet_ntoa(in);
+	n = 16;
     }
 
     memcpy(buf, addr, n);
     buf[n] = 0;
 }
 
-PUBLIC void
-ip_dump(struct packet *packet, struct context *ctx)
+PUBLIC void ip_dump(struct packet *packet, struct context *ctx)
 {
     struct ip_hdr hdr;
     U8 dst[64];
@@ -99,30 +96,29 @@ ip_dump(struct packet *packet, struct context *ctx)
     packet->data += (vhl & 0xF) * 4;
 
     if (ctx->resolve_dns) {
-	resolve(src, &hdr.ip_src); 
+	resolve(src, &hdr.ip_src);
 	resolve(dst, &hdr.ip_dst);
     } else {
 	struct in_addr in;
-        memcpy(&in, &hdr.ip_src, 4);
+	memcpy(&in, &hdr.ip_src, 4);
 	memcpy(src, inet_ntoa(in), 16);
-        memcpy(&in, &hdr.ip_dst, 4);
+	memcpy(&in, &hdr.ip_dst, 4);
 	memcpy(dst, inet_ntoa(in), 16);
     }
-    
 
     switch (hdr.ip_pro) {
     case 0x01:
 	icmp_dump(packet, src, dst, ctx);
 	break;
-	
+
     case 0x06:
 	tcp_dump(packet, src, dst, ctx);
 	break;
-	
+
     case 0x11:
 	udp_dump(packet, src, dst, ctx);
 	break;
-	
+
     default:
 	ctx->out("unknown %s > %s ", src, dst);
 	break;

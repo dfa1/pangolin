@@ -52,15 +52,14 @@ EXTERN struct sock_filter ICMP_code[];
 EXTERN struct sock_filter TCP_code[];
 EXTERN struct sock_filter UDP_code[];
 
-EXTERN struct sock_filter PORT_code[]; // customizable
-EXTERN struct sock_filter HOST_code[]; // customizable
+EXTERN struct sock_filter PORT_code[];	// customizable
+EXTERN struct sock_filter HOST_code[];	// customizable
 
-PUBLIC int loindex; // TODO: really a global?
+PUBLIC int loindex;		// TODO: really a global?
 
 PRIVATE int fd = -1;
 
-struct arguments
-{
+struct arguments {
     char *iface;
 
     /* by protocol filters */
@@ -86,33 +85,30 @@ struct arguments
 
 PRIVATE struct arguments args;
 
-PRIVATE void 
-cleanup(int sts) 
+PRIVATE void cleanup(int sts)
 {
     if (sts != EXIT_FAILURE)
-        if (if_stats(fd))
-            sts = EXIT_FAILURE;
+	if (if_stats(fd))
+	    sts = EXIT_FAILURE;
 
     if (fd != -1) {
-        if (if_promisc(fd, args.iface, 0))
-            sts = EXIT_FAILURE;
-        if_close(fd);
+	if (if_promisc(fd, args.iface, 0))
+	    sts = EXIT_FAILURE;
+	if_close(fd);
     }
 
     exit(sts);
 }
 
-PRIVATE void
-sigint_handler(int signal)
+PRIVATE void sigint_handler(int signal)
 {
-    (void) signal;              
+    (void)signal;
     cleanup(EXIT_SUCCESS);
 }
 
-PRIVATE void
-sigterm_handler(int signal)
+PRIVATE void sigterm_handler(int signal)
 {
-    (void) signal;              
+    (void)signal;
     cleanup(EXIT_FAILURE);
 }
 
@@ -136,116 +132,111 @@ PRIVATE const struct argp_option options[] = {
 };
 /* *INDENT-ON* */
 
-PRIVATE error_t
-parse_opt(int key, char *arg, struct argp_state *state)
+PRIVATE error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
     struct arguments *args = state->input;
     char *ep;
 
     switch (key) {
-            case 'c':
-                args->count = strtol(arg, &ep, 10);
+    case 'c':
+	args->count = strtol(arg, &ep, 10);
 
-                if (*ep != '\0' || args->count < 0) {
-                    fprintf(stderr, "error: invalid count\n");
-                    return -1;
-                }
+	if (*ep != '\0' || args->count < 0) {
+	    fprintf(stderr, "error: invalid count\n");
+	    return -1;
+	}
 
-                break;
- 
-            case 'n':
-		args->dns = 0;
-		break;
-		
-            case 'r':
-		args->raw = 1;
-		break;
+	break;
 
-            case 'e':
-                args->mac = 1;
-                break;
+    case 'n':
+	args->dns = 0;
+	break;
 
-            case 'h':{
-                struct in_addr in;
-                long t;
+    case 'r':
+	args->raw = 1;
+	break;
 
-                memset(&in, 0, sizeof(struct in_addr));
+    case 'e':
+	args->mac = 1;
+	break;
 
-                if (!inet_aton(arg, &in)) {
-                    fprintf(stderr, "error: invalid IP address\n");
-                    return -1;
-                }
+    case 'h':
+	{
+	    struct in_addr in;
+	    long t;
 
-                memcpy(&t, &in, sizeof(long));
-                args->host = TOHOST32(t);
-                args->filter = 1;
-                break;
-            }
+	    memset(&in, 0, sizeof(struct in_addr));
 
-            case 'i':
-                args->iface = arg;
-                break;
+	    if (!inet_aton(arg, &in)) {
+		fprintf(stderr, "error: invalid IP address\n");
+		return -1;
+	    }
 
-            case 'l':
-                args->list = 1;
-                break;
+	    memcpy(&t, &in, sizeof(long));
+	    args->host = TOHOST32(t);
+	    args->filter = 1;
+	    break;
+	}
 
-            case 'P':
-                args->promisc = 0;
-                break;
+    case 'i':
+	args->iface = arg;
+	break;
 
-#define EQ(p,s) (strcmp((p),(s)) == 0) // TODO: useless
+    case 'l':
+	args->list = 1;
+	break;
 
-            case 'p':
-                if (args->filter) {
-                    fprintf(stderr,
-                            "error: only one filter can be defined at once\n");
-                    return -1;
-                }
+    case 'P':
+	args->promisc = 0;
+	break;
 
-                if (EQ(arg, "arp"))
-                    args->arp = 1, args->filter = 1;
-                else if (EQ(arg, "rarp"))
-                    args->rarp = 1, args->filter = 1;
-                else if (EQ(arg, "ip"))
-                    args->ip = 1, args->filter = 1;
-                else if (EQ(arg, "icmp"))
-                    args->icmp = 1, args->filter = 1;
-                else if (EQ(arg, "tcp"))
-                    args->tcp = 1, args->filter = 1;
-                else if (EQ(arg, "udp"))
-                    args->udp = 1, args->filter = 1;
-                else {
-                    fprintf(stderr,
-                            "error: %s is not a valid protocol\n", arg);
-                    return -1;
-                }
+#define EQ(p,s) (strcmp((p),(s)) == 0)	// TODO: useless
 
+    case 'p':
+	if (args->filter) {
+	    fprintf(stderr, "error: only one filter can be defined at once\n");
+	    return -1;
+	}
 
-                break;
+	if (EQ(arg, "arp"))
+	    args->arp = 1, args->filter = 1;
+	else if (EQ(arg, "rarp"))
+	    args->rarp = 1, args->filter = 1;
+	else if (EQ(arg, "ip"))
+	    args->ip = 1, args->filter = 1;
+	else if (EQ(arg, "icmp"))
+	    args->icmp = 1, args->filter = 1;
+	else if (EQ(arg, "tcp"))
+	    args->tcp = 1, args->filter = 1;
+	else if (EQ(arg, "udp"))
+	    args->udp = 1, args->filter = 1;
+	else {
+	    fprintf(stderr, "error: %s is not a valid protocol\n", arg);
+	    return -1;
+	}
+
+	break;
 #undef EQ
 
-            case 's':
-                args->port = strtol(arg, &ep, 10);
+    case 's':
+	args->port = strtol(arg, &ep, 10);
 
-                if (*ep != '\0' || args->port < 1 || args->port > 0xFFFF) {
-                    fprintf(stderr, "error: invalid port\n");
-                    return -1;
-                }
+	if (*ep != '\0' || args->port < 1 || args->port > 0xFFFF) {
+	    fprintf(stderr, "error: invalid port\n");
+	    return -1;
+	}
 
-                args->filter = 1;
-                break;
+	args->filter = 1;
+	break;
 
-            default:
-                return ARGP_ERR_UNKNOWN;
+    default:
+	return ARGP_ERR_UNKNOWN;
     }
-
 
     return 0;
 }
 
-
-void out_to_stdout(const char *fmt, ...) 
+void out_to_stdout(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -255,8 +246,7 @@ void out_to_stdout(const char *fmt, ...)
 
 PRIVATE struct argp argp = { options, parse_opt, NULL, program_doc };
 
-PUBLIC int
-main(int argc, char **argv)
+PUBLIC int main(int argc, char **argv)
 {
     signal(SIGINT, sigint_handler);
     signal(SIGTERM, sigterm_handler);
@@ -279,107 +269,105 @@ main(int argc, char **argv)
     args.port = 0;
     args.raw = 0;
     args.dns = 1;
-    
-    if (argp_parse(&argp, argc, argv, ARGP_PARSE_ARGV0 | ARGP_NO_EXIT, 0, &args) != 0) {
-        cleanup(EXIT_FAILURE);
+
+    if (argp_parse
+	(&argp, argc, argv, ARGP_PARSE_ARGV0 | ARGP_NO_EXIT, 0, &args) != 0) {
+	cleanup(EXIT_FAILURE);
     }
-    
+
     if (args.list) {
-        return if_list();
+	return if_list();
     }
-    
+
     if (!args.iface) {
-        argp_help(&argp, stderr, ARGP_HELP_USAGE, argv[0]);
-        cleanup(EXIT_FAILURE);
+	argp_help(&argp, stderr, ARGP_HELP_USAGE, argv[0]);
+	cleanup(EXIT_FAILURE);
     }
 
     fd = if_open(args.iface);
 
     if (fd < 0) {
-        cleanup(EXIT_FAILURE);
+	cleanup(EXIT_FAILURE);
     }
 
     if (args.promisc)
-        if (if_promisc(fd, args.iface, 1))
-            cleanup(EXIT_FAILURE);
+	if (if_promisc(fd, args.iface, 1))
+	    cleanup(EXIT_FAILURE);
 
     if (args.arp)
-        if_filter(fd, ARP_code, 4);
+	if_filter(fd, ARP_code, 4);
 
     if (args.rarp)
-        if_filter(fd, RARP_code, 4);
+	if_filter(fd, RARP_code, 4);
 
     if (args.ip)
-        if_filter(fd, IP_code, 4);
+	if_filter(fd, IP_code, 4);
 
     if (args.icmp)
-        if_filter(fd, ICMP_code, 6);
+	if_filter(fd, ICMP_code, 6);
 
     if (args.tcp)
-        if_filter(fd, TCP_code, 6);
+	if_filter(fd, TCP_code, 6);
 
     if (args.udp)
-        if_filter(fd, UDP_code, 6);
+	if_filter(fd, UDP_code, 6);
 
     if (args.port) {
-        U16 port;
+	U16 port;
 
-        port = args.port & 0xFFFF;
-        PORT_code[10].k = port;
-        PORT_code[12].k = port;
-        if_filter(fd, PORT_code, 15);
+	port = args.port & 0xFFFF;
+	PORT_code[10].k = port;
+	PORT_code[12].k = port;
+	if_filter(fd, PORT_code, 15);
     }
 
     if (args.host) {
-        HOST_code[3].k = args.host;
-        HOST_code[5].k = args.host;
-        HOST_code[9].k = args.host;
-        HOST_code[11].k = args.host;
-        if_filter(fd, HOST_code, 14);
+	HOST_code[3].k = args.host;
+	HOST_code[5].k = args.host;
+	HOST_code[9].k = args.host;
+	HOST_code[11].k = args.host;
+	if_filter(fd, HOST_code, 14);
     }
 
     loindex = if_index(fd, "lo");
     struct context context;
     context.print_mac_addr = args.mac;
-    context.resolve_dns = args.dns; 
+    context.resolve_dns = args.dns;
     context.out = out_to_stdout;
 
     for (;;) {
-        struct packet packet, *ppacket = &packet; // TODO: this
-						  // definitevely
-						  // needs some love
+	struct packet packet, *ppacket = &packet;	// TODO: this
+	// definitevely
+	// needs some love
 
-        switch (capture(ppacket, fd)) {
-                case 0:
-                    if (!errno)
-                        continue;
+	switch (capture(ppacket, fd)) {
+	case 0:
+	    if (!errno)
+		continue;
 
-                case -1:
-                    fprintf(stderr,
-                            "error: capture() failed: %s\n", strerror(errno));
-                    goto out;
+	case -1:
+	    fprintf(stderr, "error: capture() failed: %s\n", strerror(errno));
+	    goto out;
 
+	default:
+	    if (args.count > 0)
+		if (++c > args.count)
+		    goto out;
+	}
 
-                default:
-                    if (args.count > 0)
-                        if (++c > args.count)
-                            goto out;
-        }
-
-	if (args.raw) { // TODO: move into context
+	if (args.raw) {		// TODO: move into context
 	    dump_raw(ppacket);
 	}
-	
-        eth_dump(ppacket, &context);
+
+	eth_dump(ppacket, &context);
     }
 
-  out:
+ out:
     cleanup(EXIT_SUCCESS);
     return 0;			/* XXX: shut up compiler */
 }
 
-void 
-dump_raw(struct packet *ppacket) 
+void dump_raw(struct packet *ppacket)
 {
     int i;
     fprintf(stdout, "type = %d\n", ppacket->type);
@@ -390,4 +378,3 @@ dump_raw(struct packet *ppacket)
 
     fprintf(stdout, "\n");
 }
-

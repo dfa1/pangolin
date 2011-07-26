@@ -34,32 +34,31 @@
 EXTERN int loindex;
 PRIVATE socklen_t fromlen = sizeof(struct sockaddr_ll);
 
-PUBLIC int
-capture(struct packet *packet, int fd)
+PUBLIC int capture(struct packet *packet, int fd)
 {
     struct sockaddr_ll from;
 
     memset(packet, 0, sizeof(struct packet));
 
     if (recvfrom(fd, packet->base, PKT_DATA_LEN, MSG_TRUNC,
-                 (struct sockaddr *) &from, &fromlen) < 0) {
-        fprintf(stderr, "error: recvfrom(): %s", strerror(errno));
-        return -1;
+		 (struct sockaddr *)&from, &fromlen) < 0) {
+	fprintf(stderr, "error: recvfrom(): %s", strerror(errno));
+	return -1;
     }
 
     packet->data = packet->base;
     packet->type = 0;
 
     if (from.sll_pkttype == PACKET_OUTGOING) {
-        if (from.sll_ifindex == loindex)
-            return 0;
-        else
-            packet->type = 0;
+	if (from.sll_ifindex == loindex)
+	    return 0;
+	else
+	    packet->type = 0;
     }
 
     if (ioctl(fd, SIOCGSTAMP, &packet->time) < 0) {
-        fprintf(stderr, "error: ioctl(SIOCGSTAMP): %s", strerror(errno));
-        return -1;
+	fprintf(stderr, "error: ioctl(SIOCGSTAMP): %s", strerror(errno));
+	return -1;
     }
 
     return 1;

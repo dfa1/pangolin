@@ -29,33 +29,29 @@ typedef uint32_t U32;
 /* (2^16) should be greater than any MTU */
 #define PKT_DATA_LEN (1024 * 64)
 
-struct packet
-{
+struct packet {
     struct timeval time;
     U8 base[PKT_DATA_LEN];
     U8 *data;
     U8 type;
 };
 
-struct sock_filter
-{
-    U16 code;                   /* Actual filter code */
-    U8 jt;                      /* Jump true */
-    U8 jf;                      /* Jump false */
-    U32 k;                      /* Generic multiuse field */
+struct sock_filter {
+    U16 code;			/* Actual filter code */
+    U8 jt;			/* Jump true */
+    U8 jf;			/* Jump false */
+    U32 k;			/* Generic multiuse field */
 };
 
-struct sock_fprog               /* Required for SO_ATTACH_FILTER. */
-{
+struct sock_fprog {		/* Required for SO_ATTACH_FILTER. */
     U16 len;
     struct sock_filter *filter;
 };
 
 /* decoding context */
-struct context 
-{
+struct context {
     int print_mac_addr;
-    int resolve_dns; 
+    int resolve_dns;
 
     void (*out) (const char *fmt, ...);
     void (*err) (const char *fmt, ...);
@@ -68,6 +64,3 @@ EXTERN void icmp_dump(struct packet *, U8 *, U8 *, struct context *);
 EXTERN void tcp_dump(struct packet *, U8 *, U8 *, struct context *);
 EXTERN void udp_dump(struct packet *, U8 *, U8 *, struct context *);
 EXTERN void bootp_dump(struct packet *, struct context *);
-
-
-    

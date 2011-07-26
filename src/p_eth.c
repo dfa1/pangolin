@@ -27,20 +27,18 @@
 #define ETH_ADDR_LEN 6
 #define ETH_HDR_LEN 14
 
-struct eth_hdr
-{
-    U8 eth_dhost[ETH_ADDR_LEN]; 
-    U8 eth_shost[ETH_ADDR_LEN]; 
-    U16 eth_type;               
+struct eth_hdr {
+    U8 eth_dhost[ETH_ADDR_LEN];
+    U8 eth_shost[ETH_ADDR_LEN];
+    U16 eth_type;
 };
 
 /* supported values for eth_type */
-#define ETH_TYPE_IP   0x0800    /* IPv4  */
-#define ETH_TYPE_ARP  0x0806    /* ARP   */
-#define ETH_TYPE_RARP 0x8035    /* RARP  */
+#define ETH_TYPE_IP   0x0800	/* IPv4  */
+#define ETH_TYPE_ARP  0x0806	/* ARP   */
+#define ETH_TYPE_RARP 0x8035	/* RARP  */
 
-PRIVATE struct eth_type
-{
+PRIVATE struct eth_type {
     U16 begin;
     U16 end;
     char desc[76];
@@ -189,24 +187,22 @@ PRIVATE struct eth_type
 	/* *INDENT-ON* */
 };
 
-PRIVATE const char *
-eth_type2str(short n)
+PRIVATE const char *eth_type2str(short n)
 {
-    struct eth_type *p; // TODO: rewrite using gperf
+    struct eth_type *p;		// TODO: rewrite using gperf
     char *res = "unknown";
 
     for (p = eth_types; p->begin != 0xFFFF; p++) {
-        if ((p->begin <= n) && (p->end >= n)) {
-            res = p->desc;
-            break;
-        }
+	if ((p->begin <= n) && (p->end >= n)) {
+	    res = p->desc;
+	    break;
+	}
     }
 
     return res;
 }
 
-PRIVATE const char *
-timestamp(struct timeval *tv)
+PRIVATE const char *timestamp(struct timeval *tv)
 {
     size_t c;
     struct tm *h;
@@ -218,75 +214,73 @@ timestamp(struct timeval *tv)
     return s;
 }
 
-PUBLIC void
-eth_mac_addr(U8 *mac, char *buf, size_t bufsize)
+PUBLIC void eth_mac_addr(U8 * mac, char *buf, size_t bufsize)
 {
     if (!(mac[5] ^ 0xFF) && !(mac[0] ^ 0xFF)) {
-        int x = mac[1] ^ mac[2] ^ mac[3] ^ mac[4];
+	int x = mac[1] ^ mac[2] ^ mac[3] ^ mac[4];
 
-        if (!x) {
-            snprintf(buf, bufsize, "%s", "broadcast");
+	if (!x) {
+	    snprintf(buf, bufsize, "%s", "broadcast");
 	    return;
 	}
-	
-    } 
-    
+
+    }
+
     snprintf(buf, bufsize, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
 	     mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
-PUBLIC int
-eth_dump(struct packet *packet, struct context *ctx)
+PUBLIC int eth_dump(struct packet *packet, struct context *ctx)
 {
     struct eth_hdr hdr;
     U16 type;
-    int sts = 0; // TODO: really necessary?
+    int sts = 0;		// TODO: really necessary?
     U8 s;
 
     if (!packet->type) {
-        memset(&hdr, 0, ETH_HDR_LEN);
-        memcpy(&hdr, packet->data, ETH_HDR_LEN);
-        type = TOHOST16(hdr.eth_type);
+	memset(&hdr, 0, ETH_HDR_LEN);
+	memcpy(&hdr, packet->data, ETH_HDR_LEN);
+	type = TOHOST16(hdr.eth_type);
     } else {
 	type = TOHOST16(packet->type);
     }
-    
+
     s = packet->time.tv_sec % 60;
     ctx->out("%s:%c%2.6f ", timestamp(&packet->time),
-            s < 10 ? '0' : '\0', s + (float) packet->time.tv_usec / 1000000);
+	     s < 10 ? '0' : '\0', s + (float)packet->time.tv_usec / 1000000);
 
     if (ctx->print_mac_addr) {
-        char src[20];
+	char src[20];
 	char dst[20];
 	eth_mac_addr(hdr.eth_shost, src, sizeof src);
 	eth_mac_addr(hdr.eth_dhost, dst, sizeof dst);
-        ctx->out("%s > %s: ", src, dst);
+	ctx->out("%s > %s: ", src, dst);
     }
 
     if (type <= 0x05DC) {
-        ctx->out("IEEE 802.3 Length len=%d", type & 0xFFFF);
+	ctx->out("IEEE 802.3 Length len=%d", type & 0xFFFF);
     } else {
-        packet->data += ETH_HDR_LEN;
+	packet->data += ETH_HDR_LEN;
 
-        switch (type) {
-                case ETH_TYPE_IP:
-                    ip_dump(packet, ctx);
-                    sts = 1;
-                    break;
+	switch (type) {
+	case ETH_TYPE_IP:
+	    ip_dump(packet, ctx);
+	    sts = 1;
+	    break;
 
-                case ETH_TYPE_ARP:
-                case ETH_TYPE_RARP:
-                    arp_dump(packet, ctx);
-                    sts = 1;
-                    break;
+	case ETH_TYPE_ARP:
+	case ETH_TYPE_RARP:
+	    arp_dump(packet, ctx);
+	    sts = 1;
+	    break;
 
-                default:
-                    ctx->out("%s (skip)", eth_type2str(type));
-                    break;
-        }
+	default:
+	    ctx->out("%s (skip)", eth_type2str(type));
+	    break;
+	}
     }
 
-    ctx->out("\n"); 
-    fflush(stdout); // TODO: user configurable (in context)
+    ctx->out("\n");
+    fflush(stdout);		// TODO: user configurable (in context)
     return sts;
 }

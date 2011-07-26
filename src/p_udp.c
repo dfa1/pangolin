@@ -38,8 +38,7 @@
 #define UDP_HDR_LEN 8
 
 /* see RFC 768. */
-struct udp_hdr
-{
+struct udp_hdr {
     U16 udp_sport;
     U16 udp_dport;
     U16 udp_len;
@@ -49,7 +48,7 @@ struct udp_hdr
 EXTERN const char *service(U16, U8);
 
 PUBLIC void
-udp_dump(struct packet *packet, U8 *src, U8 *dst, struct context *ctx)
+udp_dump(struct packet *packet, U8 * src, U8 * dst, struct context *ctx)
 {
     struct udp_hdr hdr;
     U16 s, d;
@@ -62,22 +61,22 @@ udp_dump(struct packet *packet, U8 *src, U8 *dst, struct context *ctx)
     packet->data += UDP_HDR_LEN;
 
     if (s == 68 || d == 68 || s == 67 || d == 67) {
-        bootp_dump(packet, ctx);
+	bootp_dump(packet, ctx);
     } else {
-        ctx->out("udp %s:", src);
-        pent = getprotobynumber(s);
+	ctx->out("udp %s:", src);
+	pent = getprotobynumber(s);
 
-        if (pent == NULL) // TODO: refactor with p_tcp.c
-            ctx->out("%d", s & 0xFFFF);
-        else
-            ctx->out("%s", pent->p_name);
+	if (pent == NULL)	// TODO: refactor with p_tcp.c
+	    ctx->out("%d", s & 0xFFFF);
+	else
+	    ctx->out("%s", pent->p_name);
 
-        ctx->out(" %s:", dst);
-        pent = getprotobynumber(d);
+	ctx->out(" %s:", dst);
+	pent = getprotobynumber(d);
 
-        if (pent == NULL)
-            ctx->out("%d", d & 0xFFFF);
-        else
-            ctx->out("%s", pent->p_name);
+	if (pent == NULL)
+	    ctx->out("%d", d & 0xFFFF);
+	else
+	    ctx->out("%s", pent->p_name);
     }
 }

@@ -29,7 +29,7 @@
 #include <linux/if.h>
 #include <netinet/ether.h>
 
-#include <features.h>           
+#include <features.h>
 
 #if (__GLIBC__ >= 2) && (__GLIBC_MINOR >= 1)
 # include <netpacket/packet.h>
@@ -48,8 +48,7 @@
 #endif
 
 // TODO: this should get a if_accept function 
-PUBLIC int
-if_list(void)
+PUBLIC int if_list(void)
 {
     struct ifconf ifc;
     struct ifreq *ifreqs, *ifr;
@@ -59,86 +58,85 @@ if_list(void)
     fd = socket(PF_INET, SOCK_DGRAM, 0);
 
     if (fd < 0) {
-        fprintf(stderr, "error: cannot create an helper socket: %s\n",
-                strerror(errno));
-        return -1;
+	fprintf(stderr, "error: cannot create an helper socket: %s\n",
+		strerror(errno));
+	return -1;
     }
 
     ifc.ifc_buf = NULL;
-    rqlen = 2 * sizeof(struct ifreq); // TODO: this is a bug, ioctl
-				      // always returns two interfaces
+    rqlen = 2 * sizeof(struct ifreq);	// TODO: this is a bug, ioctl
+    // always returns two interfaces
 
     do {
-        ifc.ifc_len = rqlen;
-        ifc.ifc_buf = realloc(ifc.ifc_buf, ifc.ifc_len);
+	ifc.ifc_len = rqlen;
+	ifc.ifc_buf = realloc(ifc.ifc_buf, ifc.ifc_len);
 
-        if (ifc.ifc_buf == NULL) {
-            fprintf(stderr, "error: realloc()\n");
-            sts = 1;
-            goto outclose;
-        }
+	if (ifc.ifc_buf == NULL) {
+	    fprintf(stderr, "error: realloc()\n");
+	    sts = 1;
+	    goto outclose;
+	}
 
-        if (ioctl(fd, SIOCGIFCONF, &ifc) < 0) {
-            fprintf(stderr, "error: ioctl(SIOCGIFCONF): %s\n",
-                    strerror(errno));
-            sts = -1;
+	if (ioctl(fd, SIOCGIFCONF, &ifc) < 0) {
+	    fprintf(stderr, "error: ioctl(SIOCGIFCONF): %s\n", strerror(errno));
+	    sts = -1;
 
-            if (ifc.ifc_buf)
-                free(ifc.ifc_buf);
+	    if (ifc.ifc_buf)
+		free(ifc.ifc_buf);
 
-            goto outclose;
-        }
+	    goto outclose;
+	}
 
-        rqlen *= 2;
-    } while (rqlen < sizeof(struct ifreq) + ifc.ifc_len);
+	rqlen *= 2;
+    }
+    while (rqlen < sizeof(struct ifreq) + ifc.ifc_len);
 
     nif = ifc.ifc_len / sizeof(struct ifreq);
     ifr = ifreqs = realloc(ifc.ifc_buf, ifc.ifc_len);
 
     if (ifr == NULL) {
-        fprintf(stderr, "error: realloc()\n");
-        sts = -1;
-        goto outclose;
+	fprintf(stderr, "error: realloc()\n");
+	sts = -1;
+	goto outclose;
     }
 
     fprintf(stdout, "Listing available interface(s):\n");
 
     for (i = 0; i < nif; i++, ifr++) {
-        U8 mac[6];
+	U8 mac[6];
 
-        /* skip non IPv4 interfaces */
-        if (ifr->ifr_addr.sa_family != PF_INET)
-            continue;
+	/* skip non IPv4 interfaces */
+	if (ifr->ifr_addr.sa_family != PF_INET)
+	    continue;
 
 	/* skip PPP interfaces */
-        if (ioctl(fd, SIOCGIFFLAGS, ifr) < 0) {
-            fprintf(stderr, "error: ioctl(SIOCGIFFLAGS): %s\n",
-                    strerror(errno));
-            sts = -1;
-            goto outfree;
-        }
+	if (ioctl(fd, SIOCGIFFLAGS, ifr) < 0) {
+	    fprintf(stderr, "error: ioctl(SIOCGIFFLAGS): %s\n",
+		    strerror(errno));
+	    sts = -1;
+	    goto outfree;
+	}
 
-        if (ifr->ifr_flags & IFF_POINTOPOINT)
-            continue;
+	if (ifr->ifr_flags & IFF_POINTOPOINT)
+	    continue;
 
 	/* print accepted interface */
-        memcpy(&mac, &ifr->ifr_hwaddr, 6);
-        fprintf(stdout, "  %s\t%s%s%s\n", ifr->ifr_name,
-                ifr->ifr_flags & IFF_UP ? "UP " : "",
-                ifr->ifr_flags & IFF_LOOPBACK ? "LOOPBACK " : "",
-                ifr->ifr_flags & IFF_PROMISC ? "PROMISC " : "");
+	memcpy(&mac, &ifr->ifr_hwaddr, 6);
+	fprintf(stdout, "  %s\t%s%s%s\n", ifr->ifr_name,
+		ifr->ifr_flags & IFF_UP ? "UP " : "",
+		ifr->ifr_flags & IFF_LOOPBACK ? "LOOPBACK " : "",
+		ifr->ifr_flags & IFF_PROMISC ? "PROMISC " : "");
     }
 
-  outfree:
+ outfree:
     free(ifreqs);
 
-  outclose:
+ outclose:
     close(fd);
     return sts;
 }
 
-PUBLIC int
-if_index(int fd, const char *iface)
+PUBLIC int if_index(int fd, const char *iface)
 {
     struct ifreq ifreq;
 
@@ -146,16 +144,14 @@ if_index(int fd, const char *iface)
     strncpy(ifreq.ifr_name, iface, IFNAMSIZ);
 
     if (ioctl(fd, SIOCGIFINDEX, &ifreq) == -1) {
-        fprintf(stderr, "error: interface %s: %s\n", iface, strerror(errno));
-        return -1;
+	fprintf(stderr, "error: interface %s: %s\n", iface, strerror(errno));
+	return -1;
     }
 
     return ifreq.ifr_ifindex;
 }
 
-
-PUBLIC int
-if_promisc(int fd, const char *iface, int state)
+PUBLIC int if_promisc(int fd, const char *iface, int state)
 {
     struct ifreq ifreq;
 
@@ -163,25 +159,24 @@ if_promisc(int fd, const char *iface, int state)
     strncpy(ifreq.ifr_name, iface, IFNAMSIZ);
 
     if (ioctl(fd, SIOCGIFFLAGS, &ifreq) < 0) {
-        fprintf(stderr, "error: ioctl(SIOCGIFFLAGS): %s\n", strerror(errno));
-        return -1;
+	fprintf(stderr, "error: ioctl(SIOCGIFFLAGS): %s\n", strerror(errno));
+	return -1;
     }
 
     if (state)
-        ifreq.ifr_flags |= IFF_PROMISC;
+	ifreq.ifr_flags |= IFF_PROMISC;
     else
-        ifreq.ifr_flags &= ~(IFF_PROMISC);
+	ifreq.ifr_flags &= ~(IFF_PROMISC);
 
     if (ioctl(fd, SIOCSIFFLAGS, &ifreq) < 0) {
-        fprintf(stderr, "error: ioctl(SIOCSIFFLAGS): %s\n", strerror(errno));
-        return -1;
+	fprintf(stderr, "error: ioctl(SIOCSIFFLAGS): %s\n", strerror(errno));
+	return -1;
     }
 
     return 0;
 }
 
-PUBLIC int
-if_open(const char *iface)
+PUBLIC int if_open(const char *iface)
 {
     struct packet_mreq mreq;
     struct sockaddr_ll sll;
@@ -189,12 +184,12 @@ if_open(const char *iface)
     int err;
     size_t errlen = sizeof(int);
 
-    fd = socket(PF_PACKET, SOCK_RAW, TONET16(ETH_P_ALL)); // TODO: extension point
+    fd = socket(PF_PACKET, SOCK_RAW, TONET16(ETH_P_ALL));	// TODO: extension point
 
     if (fd < 0) {
-        fprintf(stderr, "error: cannot create socket: %s\n", strerror(errno));
-        err = -1;
-        goto out;
+	fprintf(stderr, "error: cannot create socket: %s\n", strerror(errno));
+	err = -1;
+	goto out;
     }
 
     /* bind socket to a specific interface */
@@ -203,29 +198,29 @@ if_open(const char *iface)
     sll.sll_ifindex = if_index(fd, iface);
 
     if (sll.sll_ifindex < 0) {
-        err = -1;
-        goto outclose;
+	err = -1;
+	goto outclose;
     }
 
     sll.sll_protocol = TONET16(ETH_P_ALL);
 
-    if (bind(fd, (struct sockaddr *) &sll, sizeof(sll)) == -1) {
-        fprintf(stderr, "error: bind(): %s\n", strerror(errno));
-        err = -1;
-        goto outclose;
+    if (bind(fd, (struct sockaddr *)&sll, sizeof(sll)) == -1) {
+	fprintf(stderr, "error: bind(): %s\n", strerror(errno));
+	err = -1;
+	goto outclose;
     }
 
     /* check for pending errors on socket */
     if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &errlen) == -1) {
-        fprintf(stderr, "error: getsockopt(): %s\n", strerror(errno));
-        err = -1;
-        goto outclose;
+	fprintf(stderr, "error: getsockopt(): %s\n", strerror(errno));
+	err = -1;
+	goto outclose;
     }
 
     if (err > 0) {
-        fprintf(stderr, "error: pending error: %s\n", strerror(errno));
-        err = -1;
-        goto outclose;
+	fprintf(stderr, "error: pending error: %s\n", strerror(errno));
+	err = -1;
+	goto outclose;
     }
 
     /* enable promisc mode */
@@ -234,16 +229,18 @@ if_open(const char *iface)
     mreq.mr_ifindex = if_index(fd, iface);
 
     if (mreq.mr_ifindex < 0) {
-        err = -1;
-        goto outclose;
+	err = -1;
+	goto outclose;
     }
 
-    if (setsockopt(fd, SOL_SOCKET, PACKET_ADD_MEMBERSHIP, &mreq, sizeof(struct packet_mreq)) < 0) {
-        fprintf(stderr,
-                "error: cannot enter promiscuous mode on interface %s: %s\n",
-                iface, strerror(errno));
-        err = -1;
-        goto outclose;
+    if (setsockopt
+	(fd, SOL_SOCKET, PACKET_ADD_MEMBERSHIP, &mreq,
+	 sizeof(struct packet_mreq)) < 0) {
+	fprintf(stderr,
+		"error: cannot enter promiscuous mode on interface %s: %s\n",
+		iface, strerror(errno));
+	err = -1;
+	goto outclose;
     }
 
     /* enabling multicast */
@@ -252,59 +249,56 @@ if_open(const char *iface)
     mreq.mr_ifindex = if_index(fd, iface);
 
     if (mreq.mr_ifindex < 0) {
-        err = -1;
-        goto outclose;
+	err = -1;
+	goto outclose;
     }
 
     if (setsockopt
-        (fd, SOL_SOCKET, PACKET_ADD_MEMBERSHIP, &mreq,
-         sizeof(struct packet_mreq)) < 0) {
-        fprintf(stderr,
-                "error: cannot receive all multicast packets on interface %s: %s\n",
-                iface, strerror(errno));
-        err = -1;
-        goto outclose;
+	(fd, SOL_SOCKET, PACKET_ADD_MEMBERSHIP, &mreq,
+	 sizeof(struct packet_mreq)) < 0) {
+	fprintf(stderr,
+		"error: cannot receive all multicast packets on interface %s: %s\n",
+		iface, strerror(errno));
+	err = -1;
+	goto outclose;
     }
 
     return fd;
 
-  outclose:
+ outclose:
     close(fd);
 
-  out:
+ out:
     return -1;
 }
 
-PUBLIC void
-if_close(int fd)
+PUBLIC void if_close(int fd)
 {
-    (void) shutdown(fd, 2);
-    (void) close(fd);
+    (void)shutdown(fd, 2);
+    (void)close(fd);
 }
 
-PUBLIC int
-if_stats(int fd)
+PUBLIC int if_stats(int fd)
 {
     struct tpacket_stats stats;
     socklen_t statslen = sizeof(struct tpacket_stats);
 
     if (getsockopt(fd, SOL_PACKET, PACKET_STATISTICS, &stats, &statslen) < 0) {
-        fprintf(stderr,
-                "error: cannot fetch packet socket statistics: %s\n",
-                strerror(errno));
-        return -1;
+	fprintf(stderr,
+		"error: cannot fetch packet socket statistics: %s\n",
+		strerror(errno));
+	return -1;
     }
 
     fprintf(stdout, "\nPacket statistics\n-----------------\n");
     fprintf(stdout, "\n%u packet%s captured.", stats.tp_packets,
-            stats.tp_packets > 1 ? "s" : "");
+	    stats.tp_packets > 1 ? "s" : "");
     fprintf(stdout, "\n%u packet%s dropped.\n", stats.tp_drops,
-            stats.tp_drops > 1 ? "s" : "");
+	    stats.tp_drops > 1 ? "s" : "");
     return 0;
 }
 
-PUBLIC int
-if_filter(int fd, struct sock_filter *code, U16 size)
+PUBLIC int if_filter(int fd, struct sock_filter *code, U16 size)
 {
     struct sock_fprog filter;
 
@@ -312,14 +306,13 @@ if_filter(int fd, struct sock_filter *code, U16 size)
     filter.filter = code;
 
     if (setsockopt(fd, SOL_SOCKET, SO_ATTACH_FILTER,
-                   &filter, sizeof(filter)) < 0) {
+		   &filter, sizeof(filter)) < 0) {
 	// TODO: this cleanup is really necessary?
-        int dummy;
-        setsockopt(fd, SOL_SOCKET, SO_DETACH_FILTER, &dummy, sizeof(int));
-        fprintf(stderr, "warning: cannot set the filter\n");
-        return -1;
+	int dummy;
+	setsockopt(fd, SOL_SOCKET, SO_DETACH_FILTER, &dummy, sizeof(int));
+	fprintf(stderr, "warning: cannot set the filter\n");
+	return -1;
     }
 
-    
     return 0;
 }
