@@ -11,6 +11,14 @@ Pangolin is a simple sniffer for GNU/Linux. It was written for
 didactical purposes infacts it use raw sockets and some BPF filters.
 
 
+Build instructions
+------------------
+
+$ autoreconf -i
+$ ./configure
+$ make
+
+
 License
 -------
 
