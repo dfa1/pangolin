@@ -29,35 +29,12 @@
 #include "config.h"
 #include "pangolin.h"
 
-/* if.c */
-EXTERN int if_open(const char *);
-EXTERN void if_close(int);
-EXTERN int if_list(void);
-EXTERN int if_index(int, const char *);
-EXTERN int if_promisc(int, const char *, int);
-EXTERN int if_stats(int);
-EXTERN int if_filter(int, struct sock_filter *, U16);
-
 /* capture.c */
-EXTERN int capture(struct packet *, int);
+int capture(struct packet *, int);
 
-/* filters.c */
-EXTERN void filter_host(struct sock_filter *, U32);
-EXTERN void filter_port(struct sock_filter *, U16);
+int loindex;		// TODO: global
 
-EXTERN struct sock_filter ARP_code[];
-EXTERN struct sock_filter RARP_code[];
-EXTERN struct sock_filter IP_code[];
-EXTERN struct sock_filter ICMP_code[];
-EXTERN struct sock_filter TCP_code[];
-EXTERN struct sock_filter UDP_code[];
-
-EXTERN struct sock_filter PORT_code[];	// customizable
-EXTERN struct sock_filter HOST_code[];	// customizable
-
-PUBLIC int loindex;		// TODO: really a global?
-
-PRIVATE int fd = -1;
+int fd = -1;
 
 struct arguments {
     char *iface;
@@ -83,9 +60,9 @@ struct arguments {
     int dns;
 };
 
-PRIVATE struct arguments args;
+static struct arguments args;
 
-PRIVATE void cleanup(int sts)
+void cleanup(int sts)
 {
     if (sts != EXIT_FAILURE)
 	if (if_stats(fd))
@@ -100,13 +77,13 @@ PRIVATE void cleanup(int sts)
     exit(sts);
 }
 
-PRIVATE void sigint_handler(int signal)
+void sigint_handler(int signal)
 {
     (void)signal;
     cleanup(EXIT_SUCCESS);
 }
 
-PRIVATE void sigterm_handler(int signal)
+void sigterm_handler(int signal)
 {
     (void)signal;
     cleanup(EXIT_FAILURE);
@@ -117,7 +94,7 @@ const char *argp_program_bug_address = PACKAGE_BUGREPORT;
 const char program_doc[] = "a simple sniffer for GNU/linux";
 
 /* *INDENT-OFF* */
-PRIVATE const struct argp_option options[] = {
+static const struct argp_option options[] = {
 	{ 0, 'i', "interface", 0, "select which interface to sniff" },
 	{ 0, 'p', "protocol", 0, "protocol filtering: arp, rarp, ip, icmp, tcp, udp"},
  	{ 0, 'h', "host", 0, "host filtering"},
@@ -132,7 +109,7 @@ PRIVATE const struct argp_option options[] = {
 };
 /* *INDENT-ON* */
 
-PRIVATE error_t parse_opt(int key, char *arg, struct argp_state *state)
+error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
     struct arguments *args = state->input;
     char *ep;
@@ -236,7 +213,19 @@ PRIVATE error_t parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-void out_to_stdout(const char *fmt, ...)
+static void dump_raw(struct packet *ppacket)
+{
+    int i;
+    fprintf(stdout, "type = %d\n", ppacket->type);
+
+    for (i = 0; i < 200; i++) {
+	fprintf(stdout, "%02x ", ppacket->data[i]);
+    }
+
+    fprintf(stdout, "\n");
+}
+
+static void out_to_stdout(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -244,9 +233,9 @@ void out_to_stdout(const char *fmt, ...)
     va_end(ap);
 }
 
-PRIVATE struct argp argp = { options, parse_opt, NULL, program_doc };
+static struct argp argp = { options, parse_opt, NULL, program_doc };
 
-PUBLIC int main(int argc, char **argv)
+int main(int argc, char **argv)
 {
     signal(SIGINT, sigint_handler);
     signal(SIGTERM, sigterm_handler);
@@ -367,14 +356,3 @@ PUBLIC int main(int argc, char **argv)
     return 0;			/* XXX: shut up compiler */
 }
 
-void dump_raw(struct packet *ppacket)
-{
-    int i;
-    fprintf(stdout, "type = %d\n", ppacket->type);
-
-    for (i = 0; i < 200; i++) {
-	fprintf(stdout, "%02x ", ppacket->data[i]);
-    }
-
-    fprintf(stdout, "\n");
-}

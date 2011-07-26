@@ -21,11 +21,6 @@ typedef uint32_t U32;
 #define TONET16(x) (U16) htons((U16)(x))
 #define TONET32(x) (U32) htonl((U32)(x))
 
-/* TODO: can be safety removed */
-#define PRIVATE static
-#define PUBLIC
-#define EXTERN extern
-
 /* (2^16) should be greater than any MTU */
 #define PKT_DATA_LEN (1024 * 64)
 
@@ -57,10 +52,31 @@ struct context {
     void (*err) (const char *fmt, ...);
 };
 
-EXTERN int eth_dump(struct packet *, struct context *);
-EXTERN void arp_dump(struct packet *, struct context *);
-EXTERN void ip_dump(struct packet *, struct context *);
-EXTERN void icmp_dump(struct packet *, U8 *, U8 *, struct context *);
-EXTERN void tcp_dump(struct packet *, U8 *, U8 *, struct context *);
-EXTERN void udp_dump(struct packet *, U8 *, U8 *, struct context *);
-EXTERN void bootp_dump(struct packet *, struct context *);
+/* decoders */
+int eth_dump(struct packet *, struct context *);
+void arp_dump(struct packet *, struct context *);
+void ip_dump(struct packet *, struct context *);
+void icmp_dump(struct packet *, U8 *, U8 *, struct context *);
+void tcp_dump(struct packet *, U8 *, U8 *, struct context *);
+void udp_dump(struct packet *, U8 *, U8 *, struct context *);
+void bootp_dump(struct packet *, struct context *);
+
+/* if.c */
+int if_open(const char *);
+void if_close(int);
+int if_list(void);
+int if_index(int, const char *);
+int if_promisc(int, const char *, int);
+int if_stats(int);
+int if_filter(int, struct sock_filter *, U16);
+
+/* BPF */
+struct sock_filter ARP_code[];
+struct sock_filter RARP_code[];
+struct sock_filter IP_code[];
+struct sock_filter ICMP_code[];
+struct sock_filter TCP_code[];
+struct sock_filter UDP_code[];
+
+struct sock_filter PORT_code[];	// customizable
+struct sock_filter HOST_code[];	// customizable

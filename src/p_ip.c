@@ -56,8 +56,8 @@ struct ip_hdr {
     U32 ip_dst;
 };
 
-PRIVATE void resolve(U8 * buf, U32 * raw)
-{				/* TODO: caching */
+void resolve(U8 * buf, U32 * raw)
+{				
     struct hostent *hp;
     char *addr;
     size_t n;
@@ -84,7 +84,7 @@ PRIVATE void resolve(U8 * buf, U32 * raw)
     buf[n] = 0;
 }
 
-PUBLIC void ip_dump(struct packet *packet, struct context *ctx)
+void ip_dump(struct packet *packet, struct context *ctx)
 {
     struct ip_hdr hdr;
     U8 dst[64];

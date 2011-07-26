@@ -19,28 +19,28 @@
 
 #include "pangolin.h"
 
-PUBLIC struct sock_filter ARP_code[] = {
+struct sock_filter ARP_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 1, 0x00000806},
     {0x6, 0, 0, 0x00000044},
     {0x6, 0, 0, 0x00000000}
 };
 
-PUBLIC struct sock_filter RARP_code[] = {
+struct sock_filter RARP_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 1, 0x00008035},
     {0x6, 0, 0, 0x00000044},
     {0x6, 0, 0, 0x00000000}
 };
 
-PUBLIC struct sock_filter IP_code[] = {
+struct sock_filter IP_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 1, 0x00000800},
     {0x6, 0, 0, 0x00000044},
     {0x6, 0, 0, 0x00000000}
 };
 
-PUBLIC struct sock_filter TCP_code[] = {
+struct sock_filter TCP_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 3, 0x00000800},
     {0x30, 0, 0, 0x00000017},
@@ -49,7 +49,7 @@ PUBLIC struct sock_filter TCP_code[] = {
     {0x6, 0, 0, 0x00000000}
 };
 
-PUBLIC struct sock_filter UDP_code[] = {
+struct sock_filter UDP_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 3, 0x00000800},
     {0x30, 0, 0, 0x00000017},
@@ -58,7 +58,7 @@ PUBLIC struct sock_filter UDP_code[] = {
     {0x6, 0, 0, 0x00000000}
 };
 
-PUBLIC struct sock_filter ICMP_code[] = {
+struct sock_filter ICMP_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 3, 0x00000800},
     {0x30, 0, 0, 0x00000017},
@@ -67,8 +67,8 @@ PUBLIC struct sock_filter ICMP_code[] = {
     {0x6, 0, 0, 0x00000000}
 };
 
-// customizable
-PUBLIC struct sock_filter HOST_code[] = {
+// filter by host (customizable)
+struct sock_filter HOST_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 4, 0x00000800},
     {0x20, 0, 0, 0x0000001a},
@@ -85,8 +85,8 @@ PUBLIC struct sock_filter HOST_code[] = {
     {0x6, 0, 0, 0x00000000}
 };
 
-// TCP/UDP port filter
-PUBLIC struct sock_filter PORT_code[] = {
+// TCP/UDP port filter (customizable)
+struct sock_filter PORT_code[] = {
     {0x28, 0, 0, 0x0000000c},
     {0x15, 0, 12, 0x00000800},
     {0x30, 0, 0, 0x00000017},
@@ -104,4 +104,3 @@ PUBLIC struct sock_filter PORT_code[] = {
     {0x6, 0, 0, 0x00000000}
 };
 
-/* *INDENT-ON* */

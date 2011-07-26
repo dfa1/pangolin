@@ -38,7 +38,7 @@ struct eth_hdr {
 #define ETH_TYPE_ARP  0x0806	/* ARP   */
 #define ETH_TYPE_RARP 0x8035	/* RARP  */
 
-PRIVATE struct eth_type {
+static struct eth_type {
     U16 begin;
     U16 end;
     char desc[76];
@@ -187,7 +187,7 @@ PRIVATE struct eth_type {
 	/* *INDENT-ON* */
 };
 
-PRIVATE const char *eth_type2str(short n)
+static const char *eth_type2str(short n)
 {
     struct eth_type *p;		// TODO: rewrite using gperf
     char *res = "unknown";
@@ -202,7 +202,7 @@ PRIVATE const char *eth_type2str(short n)
     return res;
 }
 
-PRIVATE const char *timestamp(struct timeval *tv)
+static const char *timestamp(struct timeval *tv)
 {
     size_t c;
     struct tm *h;
@@ -214,7 +214,7 @@ PRIVATE const char *timestamp(struct timeval *tv)
     return s;
 }
 
-PUBLIC void eth_mac_addr(U8 * mac, char *buf, size_t bufsize)
+void eth_mac_addr(U8 * mac, char *buf, size_t bufsize) 
 {
     if (!(mac[5] ^ 0xFF) && !(mac[0] ^ 0xFF)) {
 	int x = mac[1] ^ mac[2] ^ mac[3] ^ mac[4];
@@ -230,7 +230,7 @@ PUBLIC void eth_mac_addr(U8 * mac, char *buf, size_t bufsize)
 	     mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
-PUBLIC int eth_dump(struct packet *packet, struct context *ctx)
+int eth_dump(struct packet *packet, struct context *ctx)
 {
     struct eth_hdr hdr;
     U16 type;

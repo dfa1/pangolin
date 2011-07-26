@@ -47,8 +47,7 @@
 # define SOL_PACKET 263
 #endif
 
-// TODO: this should get a if_accept function 
-PUBLIC int if_list(void)
+int if_list(void)
 {
     struct ifconf ifc;
     struct ifreq *ifreqs, *ifr;
@@ -136,7 +135,7 @@ PUBLIC int if_list(void)
     return sts;
 }
 
-PUBLIC int if_index(int fd, const char *iface)
+int if_index(int fd, const char *iface)
 {
     struct ifreq ifreq;
 
@@ -151,7 +150,7 @@ PUBLIC int if_index(int fd, const char *iface)
     return ifreq.ifr_ifindex;
 }
 
-PUBLIC int if_promisc(int fd, const char *iface, int state)
+int if_promisc(int fd, const char *iface, int state)
 {
     struct ifreq ifreq;
 
@@ -176,7 +175,7 @@ PUBLIC int if_promisc(int fd, const char *iface, int state)
     return 0;
 }
 
-PUBLIC int if_open(const char *iface)
+int if_open(const char *iface)
 {
     struct packet_mreq mreq;
     struct sockaddr_ll sll;
@@ -253,12 +252,8 @@ PUBLIC int if_open(const char *iface)
 	goto outclose;
     }
 
-    if (setsockopt
-	(fd, SOL_SOCKET, PACKET_ADD_MEMBERSHIP, &mreq,
-	 sizeof(struct packet_mreq)) < 0) {
-	fprintf(stderr,
-		"error: cannot receive all multicast packets on interface %s: %s\n",
-		iface, strerror(errno));
+    if (setsockopt(fd, SOL_SOCKET, PACKET_ADD_MEMBERSHIP, &mreq, sizeof(struct packet_mreq)) < 0) {
+	fprintf(stderr, "error: cannot receive all multicast packets on interface %s: %s\n", iface, strerror(errno));
 	err = -1;
 	goto outclose;
     }
@@ -272,13 +267,13 @@ PUBLIC int if_open(const char *iface)
     return -1;
 }
 
-PUBLIC void if_close(int fd)
+void if_close(int fd)
 {
     (void)shutdown(fd, 2);
     (void)close(fd);
 }
 
-PUBLIC int if_stats(int fd)
+int if_stats(int fd)
 {
     struct tpacket_stats stats;
     socklen_t statslen = sizeof(struct tpacket_stats);
@@ -298,7 +293,7 @@ PUBLIC int if_stats(int fd)
     return 0;
 }
 
-PUBLIC int if_filter(int fd, struct sock_filter *code, U16 size)
+int if_filter(int fd, struct sock_filter *code, U16 size)
 {
     struct sock_fprog filter;
 
@@ -316,3 +311,4 @@ PUBLIC int if_filter(int fd, struct sock_filter *code, U16 size)
 
     return 0;
 }
+

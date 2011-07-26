@@ -31,10 +31,11 @@
 
 #include "pangolin.h"
 
-EXTERN int loindex;
-PRIVATE socklen_t fromlen = sizeof(struct sockaddr_ll);
+int loindex; // TODO: global
+static socklen_t fromlen = sizeof(struct sockaddr_ll);
 
-PUBLIC int capture(struct packet *packet, int fd)
+int 
+capture(struct packet *packet, int fd)
 {
     struct sockaddr_ll from;
 

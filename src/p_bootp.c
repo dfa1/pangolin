@@ -68,7 +68,7 @@ struct bootp_hdr {
     U8 bootp_vendor[64];
 };
 
-PRIVATE const char *bootp_op2str(U8 op)
+static const char *bootp_op2str(U8 op)
 {
     switch (op) {
     case 0:
@@ -84,7 +84,7 @@ PRIVATE const char *bootp_op2str(U8 op)
     }
 }
 
-PRIVATE void bootp_ip(U8 * addr, U32 * raw)
+static void bootp_ip(U8 * addr, U32 * raw)
 {
     struct in_addr in;
 
@@ -92,7 +92,7 @@ PRIVATE void bootp_ip(U8 * addr, U32 * raw)
     memcpy(addr, inet_ntoa(in), 16);
 }
 
-PUBLIC void bootp_dump(struct packet *packet, struct context *ctx)
+void bootp_dump(struct packet *packet, struct context *ctx)
 {
     struct bootp_hdr hdr;
     U8 sa[16], ca[16], ya[16], ga[16];

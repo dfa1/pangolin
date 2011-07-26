@@ -42,7 +42,7 @@ struct arp_hdr {
 #endif
 };
 
-PRIVATE const char *arp_hrd2str(U16 hrd)
+static const char *arp_hrd2str(U16 hrd)
 {
     switch (hrd) {
     case ARPHRD_NETROM:
@@ -150,7 +150,7 @@ PRIVATE const char *arp_hrd2str(U16 hrd)
     }
 }
 
-PRIVATE const char *arp_op2str(U16 op)
+static const char *arp_op2str(U16 op)
 {
     switch (op) {
     case ARPOP_REQUEST:
@@ -172,9 +172,9 @@ PRIVATE const char *arp_op2str(U16 op)
     }
 }
 
-EXTERN void eth_mac_addr(U8 *, char *, size_t);	// TODO: declare in pangolin.h 
+extern void eth_mac_addr(U8 *, char *, size_t);	// TODO: declare in pangolin.h 
 
-PUBLIC void arp_dump(struct packet *packet, struct context *ctx)
+void arp_dump(struct packet *packet, struct context *ctx)
 {
     struct arp_hdr hdr;
 
