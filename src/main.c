@@ -319,7 +319,7 @@ int main(int argc, char **argv)
     context.resolve_dns = args.dns;
     context.out = out_to_stdout;
     struct packet packet;
-    
+
     for (;;) {
 	switch (capture(&packet, fd, loindex)) {
 	case 0:
@@ -347,4 +347,3 @@ int main(int argc, char **argv)
     cleanup(EXIT_SUCCESS);
     return 0;			/* XXX: shut up compiler */
 }
-

@@ -57,7 +57,7 @@ struct ip_hdr {
 };
 
 void resolve(U8 * buf, U32 * raw)
-{				
+{
     struct hostent *hp;
     char *addr;
     size_t n;

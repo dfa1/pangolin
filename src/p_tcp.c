@@ -105,9 +105,9 @@ void tcp_dump(struct packet *packet, U8 * src, U8 * dst, struct context *ctx)
 	     hdr.tcp_flags & TCP_FLAG_SYN ? 'S' : '\0',
 	     hdr.tcp_flags & TCP_FLAG_RST ? 'R' : '\0',
 	     hdr.tcp_flags & TCP_FLAG_PUSH ? 'P' : '\0',
-	     hdr.tcp_flags & TCP_FLAG_ACK ? (hdr.
-					     tcp_flags & TCP_FLAG_SYN ? 'A' :
-					     '-') : '\0',
+	     hdr.
+	     tcp_flags & TCP_FLAG_ACK ? (hdr.tcp_flags & TCP_FLAG_SYN ? 'A' :
+					 '-') : '\0',
 	     hdr.tcp_flags & TCP_FLAG_URP ? 'U' : '\0');
 
     if (hdr.tcp_flags & TCP_FLAG_SYN || hdr.tcp_flags & TCP_FLAG_FIN)

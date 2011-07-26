@@ -103,4 +103,3 @@ struct sock_filter PORT_code[] = {
     {0x6, 0, 0, 0x00000044},
     {0x6, 0, 0, 0x00000000}
 };
-

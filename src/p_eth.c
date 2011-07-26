@@ -214,7 +214,7 @@ static const char *timestamp(struct timeval *tv)
     return s;
 }
 
-void eth_mac_addr(U8 * mac, char *buf, size_t bufsize) 
+void eth_mac_addr(U8 * mac, char *buf, size_t bufsize)
 {
     if (!(mac[5] ^ 0xFF) && !(mac[0] ^ 0xFF)) {
 	int x = mac[1] ^ mac[2] ^ mac[3] ^ mac[4];

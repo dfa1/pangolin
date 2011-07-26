@@ -33,8 +33,7 @@
 
 static socklen_t fromlen = sizeof(struct sockaddr_ll);
 
-int 
-capture(struct packet *packet, int fd, int loindex)
+int capture(struct packet *packet, int fd, int loindex)
 {
     struct sockaddr_ll from;
 

@@ -252,8 +252,12 @@ int if_open(const char *iface)
 	goto outclose;
     }
 
-    if (setsockopt(fd, SOL_SOCKET, PACKET_ADD_MEMBERSHIP, &mreq, sizeof(struct packet_mreq)) < 0) {
-	fprintf(stderr, "error: cannot receive all multicast packets on interface %s: %s\n", iface, strerror(errno));
+    if (setsockopt
+	(fd, SOL_SOCKET, PACKET_ADD_MEMBERSHIP, &mreq,
+	 sizeof(struct packet_mreq)) < 0) {
+	fprintf(stderr,
+		"error: cannot receive all multicast packets on interface %s: %s\n",
+		iface, strerror(errno));
 	err = -1;
 	goto outclose;
     }
@@ -311,4 +315,3 @@ int if_filter(int fd, struct sock_filter *code, U16 size)
 
     return 0;
 }
-

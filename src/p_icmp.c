@@ -75,8 +75,7 @@ struct icmp_hdr {
 #define ICMP_ADDRESS            17	/* address mask request */
 #define ICMP_ADDRESS_REPLY         18	/* address mask reply */
 
-void
-icmp_dump(struct packet *packet, U8 * src, U8 * dst, struct context *ctx)
+void icmp_dump(struct packet *packet, U8 * src, U8 * dst, struct context *ctx)
 {
     struct icmp_hdr hdr;
 
