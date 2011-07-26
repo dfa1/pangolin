@@ -1,12 +1,8 @@
-- indent the code
-- man page
-- make dubious English much decent :-)
-- some other cool features. Do you have any ideas on how to 
+- bug: if_list shows max 2 interfaces 
+- bug: memory leak in p_ip.c:resolve()
+- ref: filter function to if_list
+- ref: use SIOCGIFCOUNT in if.c 
+- enh: use GNU gperf for static keywords? first prove that it is a bottleneck
+- enh: man page
+- some  other cool features. Do you have any ideas on how to 
   improve this program?
-- fix: if_list shows max 2 interfaces 
-- ref: pass a filter function to if_list
-- ref: use perror
-- ref: use SIOCGIFCOUNT
-- ref: unit tests with automake
-- fix: memory leak in p_ip.c:resolve()
-- enh: use GNU gperf for static keywords
