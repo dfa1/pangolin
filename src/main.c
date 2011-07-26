@@ -208,18 +208,6 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-static void dump_raw(struct packet *ppacket)
-{
-    int i;
-    fprintf(stdout, "type = %d\n", ppacket->type);
-
-    for (i = 0; i < 200; i++) {
-	fprintf(stdout, "%02x ", ppacket->data[i]);
-    }
-
-    fprintf(stdout, "\n");
-}
-
 static void out_to_stdout(const char *fmt, ...)
 {
     va_list ap;
@@ -234,8 +222,6 @@ int main(int argc, char **argv)
 {
     signal(SIGINT, sigint_handler);
     signal(SIGTERM, sigterm_handler);
-
-    int c = 0;
 
     /* defaults */
     args.iface = NULL;
@@ -318,11 +304,13 @@ int main(int argc, char **argv)
     context.print_mac_addr = args.mac;
     context.resolve_dns = args.dns;
     context.out = out_to_stdout;
+    context.dump_raw_packet = args.raw;
     struct packet packet;
-
+    int c = 0;
+    
     for (;;) {
 	switch (capture(&packet, fd, loindex)) {
-	case 0:
+	case 0: /* ignore duplicated packet from lo */
 	    if (!errno)
 		continue;
 
@@ -334,10 +322,6 @@ int main(int argc, char **argv)
 	    if (args.count > 0)
 		if (++c > args.count)
 		    goto out;
-	}
-
-	if (args.raw) {		// TODO: move into context
-	    dump_raw(&packet);
 	}
 
 	eth_dump(&packet, &context);

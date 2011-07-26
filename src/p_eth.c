@@ -230,8 +230,24 @@ void eth_mac_addr(U8 * mac, char *buf, size_t bufsize)
 	     mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
+static void eth_dump_raw(struct packet *packet, struct context *ctx)
+{
+    int i;
+
+    for (i = 0; i < 200; i++) {
+	ctx->out("%02x ", packet->data[i]);
+    }
+
+    ctx->out("\n");
+}
+
 int eth_dump(struct packet *packet, struct context *ctx)
 {
+    if (ctx->dump_raw_packet) {
+	eth_dump_raw(packet, ctx);
+	return 1;
+    }
+    
     struct eth_hdr hdr;
     U16 type;
     int sts = 0;		// TODO: really necessary?
