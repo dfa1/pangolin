@@ -45,8 +45,6 @@ struct udp_hdr {
     U16 udp_cksum;
 };
 
-const char *service(U16, U8);
-
 void udp_dump(struct packet *packet, U8 * src, U8 * dst, struct context *ctx)
 {
     struct udp_hdr hdr;

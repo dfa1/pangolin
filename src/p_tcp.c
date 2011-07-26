@@ -68,8 +68,6 @@ struct tcp_hdr {
 #define TCP_FLAG_ACK (1 << 4)	/* ACK (0x10). */
 #define TCP_FLAG_URP (1 << 5)	/* URP (0x20). */
 
-const char *service(U16, U8); // TODO: really used?
-
 void tcp_dump(struct packet *packet, U8 * src, U8 * dst, struct context *ctx)
 {
     struct tcp_hdr hdr;
