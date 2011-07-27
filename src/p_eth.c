@@ -206,10 +206,10 @@ static const char *timestamp(struct timeval *tv)
 {
     size_t c;
     struct tm *h;
-    static char s[9];
+    char s[9];
 
     h = localtime(&tv->tv_sec);
-    c = strftime(s, 9, "%H:%M", h);
+    c = strftime(s, sizeof(s), "%H:%M", h);
     s[c] = '\0';
     return s;
 }
