@@ -210,7 +210,7 @@ static const char *timestamp(struct timeval *tv)
 
     h = localtime(&tv->tv_sec);
     c = strftime(s, sizeof(s), "%H:%M", h);
-    s[c] = '\0';
+    s[c] = 0;
     return s;
 }
 
@@ -223,7 +223,6 @@ void eth_mac_addr(U8 * mac, char *buf, size_t bufsize)
 	    snprintf(buf, bufsize, "%s", "broadcast");
 	    return;
 	}
-
     }
 
     snprintf(buf, bufsize, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
