@@ -1,5 +1,7 @@
 - bug: if_list shows max 2 interfaces 
 - bug: memory leak in p_ip.c:resolve()
+- enh: write output to file
+- ref: separate args parsing from loop logic in main.c
 - ref: filter function to if_list
 - ref: use SIOCGIFCOUNT in if.c 
 - enh: use GNU gperf for static keywords? first prove that it is a bottleneck
