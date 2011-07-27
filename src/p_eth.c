@@ -287,7 +287,7 @@ void eth_dump(struct packet *packet, struct context *ctx)
 	    break;
 
 	default:
-	    ctx->out("%s (skip)", eth_type2str(type));
+	    ctx->out("skipping 802.3 payload %s (%d)", eth_type2str(type), type);
 	    break;
 	}
     }
