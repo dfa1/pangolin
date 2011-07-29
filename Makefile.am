@@ -10,7 +10,7 @@ dist-hook:
 	find $(distdir) \( -name .svn -type d \) -o -name "*~" -o -name ".#*" -exec rm {} \;
 
 valgrind: all
-	sudo valgrind --leak-check=full src/pangolin -i lo -en
+	sudo valgrind --leak-check=full src/pangolin -i eth0 -en
 
 indent: 
 	indent -i4 -linux src/*.[ch]

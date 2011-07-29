@@ -24,6 +24,7 @@
 #include <unistd.h>
 
 #include <sys/ioctl.h>
+#include <sys/types.h>
 #include <sys/socket.h>
 
 #include <linux/if.h>
@@ -181,7 +182,7 @@ int if_open(const char *iface)
     struct sockaddr_ll sll;
     int fd;
     int err;
-    size_t errlen = sizeof(int);
+    size_t errlen = sizeof(err);
 
     fd = socket(PF_PACKET, SOCK_RAW, TONET16(ETH_P_ALL));	// TODO: extension point
 
