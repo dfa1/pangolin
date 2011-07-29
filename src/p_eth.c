@@ -202,16 +202,15 @@ static const char *eth_type2str(short n)
     return res;
 }
 
-static const char *timestamp(struct timeval *tv)
+static const char *timestamp(struct timeval *tv, char *buf, size_t bufsize)
 {
     size_t c;
     struct tm *h;
-    char s[9];
 
     h = localtime(&tv->tv_sec);
-    c = strftime(s, sizeof(s), "%H:%M", h);
-    s[c] = 0;
-    return s;
+    c = strftime(buf, bufsize, "%H:%M", h);
+    buf[c] = '\0';
+    return buf;
 }
 
 void eth_mac_addr(U8 * mac, char *buf, size_t bufsize)
@@ -223,6 +222,7 @@ void eth_mac_addr(U8 * mac, char *buf, size_t bufsize)
 	    snprintf(buf, bufsize, "%s", "broadcast");
 	    return;
 	}
+
     }
 
     snprintf(buf, bufsize, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
@@ -250,6 +250,7 @@ void eth_dump(struct packet *packet, struct context *ctx)
     struct eth_hdr hdr;
     U16 type;
     U8 s;
+    char buffer[9];
 
     if (!packet->type) {
 	memset(&hdr, 0, ETH_HDR_LEN);
@@ -260,7 +261,7 @@ void eth_dump(struct packet *packet, struct context *ctx)
     }
 
     s = packet->time.tv_sec % 60;
-    ctx->out("%s:%c%2.6f ", timestamp(&packet->time),
+    ctx->out("%s:%c%2.6f ", timestamp(&packet->time, buffer, sizeof buffer),
 	     s < 10 ? '0' : '\0', s + (float)packet->time.tv_usec / 1000000);
 
     if (ctx->print_mac_addr) {
@@ -287,7 +288,7 @@ void eth_dump(struct packet *packet, struct context *ctx)
 	    break;
 
 	default:
-	    ctx->out("skipping 802.3 payload %s (%d)", eth_type2str(type), type);
+	    ctx->out("%s (skip)", eth_type2str(type));
 	    break;
 	}
     }
