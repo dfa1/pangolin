@@ -34,7 +34,7 @@
 int capture(struct packet *packet, int fd, int loindex)
 {
     struct sockaddr_ll from;
-    socklen_t fromlen = sizeof(struct sockaddr_ll)
+    socklen_t fromlen = sizeof(struct sockaddr_ll);
     memset(packet, 0, sizeof(struct packet));
 
     if (recvfrom(fd, packet->base, PKT_DATA_LEN, MSG_TRUNC,
