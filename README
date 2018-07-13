@@ -14,10 +14,11 @@ didactical purposes infacts it use raw sockets and some BPF filters.
 Build instructions
 ------------------
 
+```
 $ autoreconf -i
 $ ./configure
 $ make
-
+```
 
 License
 -------
