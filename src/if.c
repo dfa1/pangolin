@@ -33,19 +33,19 @@
 #include <features.h>
 
 #if (__GLIBC__ >= 2) && (__GLIBC_MINOR >= 1)
-# include <netpacket/packet.h>
-# include <net/ethernet.h>
+#include <netpacket/packet.h>
+#include <net/ethernet.h>
 #else
-# include <asm/types.h>
-# include <linux/if_packet.h>
-# include <linux/if_ether.h>
+#include <asm/types.h>
+#include <linux/if_packet.h>
+#include <linux/if_ether.h>
 #endif
 
 #include "pangolin.h"
 
 /* GNU libc version 2.1 doesn't define SOL_PACKET. */
 #ifndef SOL_PACKET
-# define SOL_PACKET 263
+#define SOL_PACKET 263
 #endif
 
 int if_list(void)

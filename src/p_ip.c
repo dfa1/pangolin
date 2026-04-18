@@ -56,7 +56,7 @@ struct ip_hdr {
     U32 ip_dst;
 };
 
-void resolve(U8 * buf, U32 * raw)
+void resolve(U8 *buf, U32 *raw)
 {
     struct hostent *hp;
     char *addr;

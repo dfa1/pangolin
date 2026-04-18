@@ -132,16 +132,16 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
 	args->mac = 1;
 	break;
 
-    case 'h': {
-	struct in_addr in;
-	if (inet_pton(AF_INET, arg, &in) != 1) {
+    case 'h':{
+	    struct in_addr in;
+	    if (inet_pton(AF_INET, arg, &in) != 1) {
 		fprintf(stderr, "error: invalid IP address\n");
- 		return -1;
+		return -1;
+	    }
+	    args->host = ntohl(in.s_addr);
+	    args->filter = 1;
+	    break;
 	}
-	args->host = ntohl(in.s_addr);
-	args->filter = 1;
-	break;
-    }
 
     case 'i':
 	args->iface = arg;
@@ -207,10 +207,10 @@ static void out_to_stdout(const char *fmt, ...)
 }
 
 static struct argp argp = {
-    .options    = options,
-    .parser     = parse_opt,
-    .args_doc   = NULL,
-    .doc        = program_doc
+    .options = options,
+    .parser = parse_opt,
+    .args_doc = NULL,
+    .doc = program_doc
 };
 
 int main(int argc, char **argv)
@@ -302,13 +302,13 @@ int main(int argc, char **argv)
     context.dump_raw_packet = args.raw;
     struct packet packet;
     int c = 0;
-    
+
     for (;;) {
 	switch (capture(&packet, fd, loindex)) {
-	case 0: /* ignore duplicated packet from lo */
+	case 0:		/* ignore duplicated packet from lo */
 	    if (!errno)
 		continue;
-           __attribute__((fallthrough));
+	    __attribute__((fallthrough));
 
 	case -1:
 	    fprintf(stderr, "error: capture() failed: %s\n", strerror(errno));

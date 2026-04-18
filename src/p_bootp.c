@@ -84,7 +84,7 @@ static const char *bootp_op2str(U8 op)
     }
 }
 
-static void bootp_ip(U8 * addr, U32 * raw)
+static void bootp_ip(U8 *addr, U32 *raw)
 {
     struct in_addr in;
 

@@ -68,7 +68,7 @@ struct tcp_hdr {
 #define TCP_FLAG_ACK (1 << 4)	/* ACK (0x10). */
 #define TCP_FLAG_URP (1 << 5)	/* URP (0x20). */
 
-void tcp_dump(struct packet *packet, U8 * src, U8 * dst, struct context *ctx)
+void tcp_dump(struct packet *packet, U8 *src, U8 *dst, struct context *ctx)
 {
     struct tcp_hdr hdr;
     struct protoent *pent;
@@ -105,9 +105,9 @@ void tcp_dump(struct packet *packet, U8 * src, U8 * dst, struct context *ctx)
 	     hdr.tcp_flags & TCP_FLAG_SYN ? 'S' : '\0',
 	     hdr.tcp_flags & TCP_FLAG_RST ? 'R' : '\0',
 	     hdr.tcp_flags & TCP_FLAG_PUSH ? 'P' : '\0',
-	     hdr.
-	     tcp_flags & TCP_FLAG_ACK ? (hdr.tcp_flags & TCP_FLAG_SYN ? 'A' :
-					 '-') : '\0',
+	     hdr.tcp_flags & TCP_FLAG_ACK ? (hdr.
+					     tcp_flags & TCP_FLAG_SYN ? 'A' :
+					     '-') : '\0',
 	     hdr.tcp_flags & TCP_FLAG_URP ? 'U' : '\0');
 
     if (hdr.tcp_flags & TCP_FLAG_SYN || hdr.tcp_flags & TCP_FLAG_FIN)

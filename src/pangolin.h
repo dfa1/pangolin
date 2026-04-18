@@ -48,9 +48,9 @@ struct context {
     int print_mac_addr;
     int resolve_dns;
     int dump_raw_packet;
-    
-    void (*out) (const char *fmt, ...);
-    void (*err) (const char *fmt, ...);
+
+    void (*out)(const char *fmt, ...);
+    void (*err)(const char *fmt, ...);
 };
 
 /* decoders TODO: this name sucks*/
