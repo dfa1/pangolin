@@ -90,16 +90,16 @@ const char program_doc[] = "a simple sniffer for GNU/linux";
 
 /* *INDENT-OFF* */
 static const struct argp_option options[] = {
-	{ 0, 'i', "interface", 0, "select which interface to sniff" },
-	{ 0, 'p', "protocol", 0, "protocol filtering: arp, rarp, ip, icmp, tcp, udp"},
- 	{ 0, 'h', "host", 0, "host filtering"},
- 	{ 0, 's', "port", 0, "port filtering"},
-	{ 0, 'P', 0, 0, "don't switch to promiscuous mode"},
-	{ 0, 'c', "count", 0, "stop after count packet" },
-	{ 0, 'l', 0, 0, "list interfaces" },
-	{ 0, 'e', 0, 0, "print ethernet mac addresses" },
-	{ 0, 'r', 0, 0, "dump raw packets" },
-	{ 0, 'n', 0, 0, "don't resolve DNS names" },
+	{ 0, 'i', "interface", 0, "select which interface to sniff", 0 },
+	{ 0, 'p', "protocol", 0, "protocol filtering: arp, rarp, ip, icmp, tcp, udp", 0 },
+ 	{ 0, 'h', "host", 0, "host filtering", 0 },
+ 	{ 0, 's', "port", 0, "port filtering", 0 },
+	{ 0, 'P', 0, 0, "don't switch to promiscuous mode", 0 },
+	{ 0, 'c', "count", 0, "stop after count packet", 0 },
+	{ 0, 'l', 0, 0, "list interfaces", 0 },
+	{ 0, 'e', 0, 0, "print ethernet mac addresses", 0 },
+	{ 0, 'r', 0, 0, "dump raw packets", 0 },
+	{ 0, 'n', 0, 0, "don't resolve DNS names", 0 },
 	{ 0 }
 };
 /* *INDENT-ON* */
@@ -216,7 +216,12 @@ static void out_to_stdout(const char *fmt, ...)
     va_end(ap);
 }
 
-static struct argp argp = { options, parse_opt, NULL, program_doc };
+static struct argp argp = {
+    .options    = options,
+    .parser     = parse_opt,
+    .args_doc   = NULL,
+    .doc        = program_doc
+};
 
 int main(int argc, char **argv)
 {

@@ -6,5 +6,4 @@
 - ref: use SIOCGIFCOUNT in if.c 
 - enh: use GNU gperf for static keywords? first prove that it is a bottleneck
 - enh: man page
-- some  other cool features. Do you have any ideas on how to 
-  improve this program?
+- some other cool features. Do you have any ideas on how to improve this program?
