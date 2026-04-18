@@ -132,23 +132,16 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
 	args->mac = 1;
 	break;
 
-    case 'h':
-	{
-	    struct in_addr in;
-	    long t;
-
-	    memset(&in, 0, sizeof(struct in_addr));
-
-	    if (!inet_aton(arg, &in)) {
+    case 'h': {
+	struct in_addr in;
+	if (inet_pton(AF_INET, arg, &in) != 1) {
 		fprintf(stderr, "error: invalid IP address\n");
-		return -1;
-	    }
-
-	    memcpy(&t, &in, sizeof(long));
-	    args->host = TOHOST32(t);
-	    args->filter = 1;
-	    break;
+ 		return -1;
 	}
+	args->host = ntohl(in.s_addr);
+	args->filter = 1;
+	break;
+    }
 
     case 'i':
 	args->iface = arg;
@@ -162,25 +155,23 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
 	args->promisc = 0;
 	break;
 
-#define EQ(p,s) (strcmp((p),(s)) == 0)	// TODO: useless
-
     case 'p':
 	if (args->filter) {
 	    fprintf(stderr, "error: only one filter can be defined at once\n");
 	    return -1;
 	}
 
-	if (EQ(arg, "arp"))
+	if (strcmp(arg, "arp") == 0)
 	    args->arp = 1, args->filter = 1;
-	else if (EQ(arg, "rarp"))
+	else if (strcmp(arg, "rarp") == 0)
 	    args->rarp = 1, args->filter = 1;
-	else if (EQ(arg, "ip"))
+	else if (strcmp(arg, "ip") == 0)
 	    args->ip = 1, args->filter = 1;
-	else if (EQ(arg, "icmp"))
+	else if (strcmp(arg, "icmp") == 0)
 	    args->icmp = 1, args->filter = 1;
-	else if (EQ(arg, "tcp"))
+	else if (strcmp(arg, "tcp") == 0)
 	    args->tcp = 1, args->filter = 1;
-	else if (EQ(arg, "udp"))
+	else if (strcmp(arg, "udp") == 0)
 	    args->udp = 1, args->filter = 1;
 	else {
 	    fprintf(stderr, "error: %s is not a valid protocol\n", arg);
@@ -188,7 +179,6 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
 	}
 
 	break;
-#undef EQ
 
     case 's':
 	args->port = strtol(arg, &ep, 10);
@@ -318,6 +308,7 @@ int main(int argc, char **argv)
 	case 0: /* ignore duplicated packet from lo */
 	    if (!errno)
 		continue;
+           __attribute__((fallthrough));
 
 	case -1:
 	    fprintf(stderr, "error: capture() failed: %s\n", strerror(errno));

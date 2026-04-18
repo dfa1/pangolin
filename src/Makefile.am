@@ -1,7 +1,7 @@
 bin_PROGRAMS = pangolin 
 
 pangolin_CPPFLAGS = -D_GNU_SOURCE
-pangolin_CFLAGS = -W -Wall -std=c99 -pedantic 
+pangolin_CFLAGS = -W -Wall -Werror -Wformat=2 -Wformat-security -Wcast-align -std=c11 -pedantic 
 
 pangolin_SOURCES = \
 	capture.c	\
